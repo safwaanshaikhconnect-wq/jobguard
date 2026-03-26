@@ -3,16 +3,16 @@ import { Shield, AlertTriangle, XOctagon, CheckCircle2, XCircle, Loader2, Link a
 import { analyzeWithGemini } from '../lib/gemini';
 import { motion } from 'motion/react';
 
+interface Check {
+  name: string;
+  status: 'pass' | 'fail' | 'unknown';
+  detail: string;
+}
+
 interface AnalysisResult {
   verdict: 'SAFE' | 'SUSPICIOUS' | 'HIGH RISK';
   fraud_score: number;
-  checks: {
-    ai_pattern: boolean;
-    company_verification: boolean;
-    salary_sanity: boolean;
-    domain_age: boolean;
-    address_validation: boolean;
-  };
+  checks: Check[];
   red_flags: string[];
   green_flags: string[];
   summary: string;
@@ -59,13 +59,13 @@ export default function JobAnalyzer() {
           data = {
             verdict: 'HIGH RISK',
             fraud_score: 85,
-            checks: {
-              ai_pattern: false,
-              company_verification: false,
-              salary_sanity: false,
-              domain_age: false,
-              address_validation: true
-            },
+            checks: [
+              { name: 'AI Pattern Analysis', status: 'fail', detail: 'Posting uses vague language typical of scam listings.' },
+              { name: 'Company Verification', status: 'fail', detail: 'Company not found in government registries.' },
+              { name: 'Salary Sanity Check', status: 'fail', detail: 'Salary is 3x above market average.' },
+              { name: 'Domain Age Check', status: 'unknown', detail: 'Could not verify domain.' },
+              { name: 'Address Validation', status: 'pass', detail: 'Address maps to a valid commercial location.' },
+            ],
             red_flags: [
               "Salary is unusually high for this role",
               "Generic email address used for contact",

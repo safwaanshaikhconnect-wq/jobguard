@@ -1,6 +1,11 @@
 import { GoogleGenAI, Type } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const apiKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined;
+
+function getAI(): GoogleGenAI {
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
+  return new GoogleGenAI({ apiKey });
+}
 
 export async function analyzeWithGemini(job_text: string, job_url: string) {
   const prompt = `Analyze the following job posting for potential fraud or scams.
@@ -11,7 +16,7 @@ ${job_text || 'Not provided'}
 If both are empty, provide a generic mock response for a suspicious job.
 `;
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: 'gemini-3.1-flash-lite-preview',
     contents: prompt,
     config: {
@@ -63,7 +68,7 @@ export async function chatWithGemini(history: { role: string, text: string }[], 
     parts: [{ text: message }]
   });
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: contents,
     config: {
