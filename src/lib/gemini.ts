@@ -35,9 +35,14 @@ If both are empty, provide a generic mock response for a suspicious job.
           },
           red_flags: { type: Type.ARRAY, items: { type: Type.STRING } },
           green_flags: { type: Type.ARRAY, items: { type: Type.STRING } },
-          summary: { type: Type.STRING, description: "2-line summary of the analysis" }
+          summary: { type: Type.STRING, description: "2-line summary of the analysis" },
+          company_name: { type: Type.STRING, description: "Extracted company name or UNKNOWN" },
+          job_title: { type: Type.STRING, description: "Extracted job title or UNKNOWN" },
+          salary: { type: Type.STRING, description: "Extracted salary or NOT SPECIFIED" },
+          location: { type: Type.STRING, description: "Extracted location or UNKNOWN" },
+          contact_email: { type: Type.STRING, description: "Extracted contact email or NONE" }
         },
-        required: ['verdict', 'fraud_score', 'checks', 'red_flags', 'green_flags', 'summary']
+        required: ['verdict', 'fraud_score', 'checks', 'red_flags', 'green_flags', 'summary', 'company_name', 'job_title', 'salary', 'location', 'contact_email']
       }
     }
   });

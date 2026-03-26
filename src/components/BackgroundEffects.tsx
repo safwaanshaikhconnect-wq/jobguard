@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function BackgroundEffects() {
   return (
-    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-[var(--color-background)]">
+    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
       {/* Grid Pattern: CSS grid lines at #ffffff 2% opacity, 40px spacing */}
       <div 
         className="absolute inset-0" 

@@ -16,6 +16,11 @@ interface AnalysisResult {
   red_flags: string[];
   green_flags: string[];
   summary: string;
+  company_name?: string;
+  job_title?: string;
+  salary?: string;
+  location?: string;
+  contact_email?: string;
 }
 
 export default function JobAnalyzer() {
@@ -84,92 +89,84 @@ export default function JobAnalyzer() {
 
   const getVerdictColor = (verdict: string) => {
     switch (verdict) {
-      case 'SAFE': return 'text-[var(--color-success)] border-[var(--color-success)]';
-      case 'SUSPICIOUS': return 'text-[var(--color-warning)] border-[var(--color-warning)]';
-      case 'HIGH RISK': return 'text-primary border-primary';
-      default: return 'text-[var(--color-muted-foreground)] border-[var(--color-border)]';
+      case 'SAFE': return 'text-[#22c55e] border-[#22c55e]';
+      case 'SUSPICIOUS': return 'text-[#f59e0b] border-[#f59e0b]';
+      case 'HIGH RISK': return 'text-[#ef4444] border-[#ef4444]';
+      default: return 'text-[#737373] border-[#2a2a2a]';
     }
   };
 
-  const CheckRow = ({ label, passed }: { label: string, passed: boolean }) => (
-    <div className="flex items-center justify-between p-3 border-b border-[var(--color-border)] bg-[var(--color-card)]">
-      <span className="text-sm font-mono text-[var(--color-foreground)]">{label}</span>
-      {passed ? (
-        <div className="flex items-center gap-2 text-[var(--color-success)]">
-          <span className="text-xs font-mono font-bold tracking-widest uppercase">[PASS]</span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 text-primary">
-          <span className="text-xs font-mono font-bold tracking-widest uppercase">[FAIL]</span>
-        </div>
-      )}
-    </div>
-  );
-
   const hasInput = jobText.trim() !== '' || jobUrl.trim() !== '';
 
-  return (
-    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-      {/* Input Section */}
-      <div className="lg:col-span-5 flex flex-col">
-        <div className="bg-[var(--color-card)] border border-[var(--color-border)] border-l-[3px] border-l-primary rounded-md p-6 flex-1 flex flex-col">
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  if (!result) {
+    return (
+      <div className="w-full max-w-3xl mx-auto mt-10">
+        <div className="bg-[#111111] border border-[#2a2a2a] border-l-[3px] border-l-[#ef4444] rounded-md p-6 flex-1 flex flex-col">
           <div className="mb-6">
-            <div className="text-[10px] font-mono text-primary tracking-widest uppercase mb-1">[ INVESTIGATION ]</div>
+            <div className="text-[10px] font-mono text-[#ef4444] tracking-widest uppercase mb-1">[ INVESTIGATION ]</div>
             <h2 className="text-2xl font-mono font-bold text-white uppercase tracking-tight mb-1">
               SUBMIT TARGET
             </h2>
-            <p className="text-sm text-[var(--color-muted-foreground)]">
+            <p className="text-sm text-[#737373]">
               Paste a job posting URL or description to begin fraud analysis
             </p>
           </div>
           
           <div className="space-y-4 flex-1 flex flex-col">
             <div>
-              <div className="flex items-center bg-[var(--color-background)] border border-[var(--color-border)] focus-within:border-primary rounded-md px-3 py-2.5 transition-colors">
-                <span className="text-primary font-mono text-sm mr-2 whitespace-nowrap">URL &gt;</span>
+              <div className="flex items-center bg-[#0a0a0a] border border-[#2a2a2a] focus-within:border-[#ef4444] rounded-md px-3 py-2.5 transition-colors">
+                <span className="text-[#ef4444] font-mono text-sm mr-2 whitespace-nowrap">URL &gt;</span>
                 <input
                   type="url"
                   value={jobUrl}
                   onChange={(e) => setJobUrl(e.target.value)}
                   placeholder="https://company.com/careers/job-post"
-                  className="w-full bg-transparent text-sm font-mono outline-none focus:ring-0 text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)]"
+                  className="w-full bg-transparent text-sm font-mono outline-none focus:ring-0 text-[#f5f5f5] placeholder:text-[#737373]"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-center text-[var(--color-muted-foreground)] font-mono text-xs py-1">
-              <span className="text-[var(--color-border)] tracking-tighter mr-2">──</span> 
+            <div className="flex items-center justify-center text-[#737373] font-mono text-xs py-1">
+              <span className="text-[#2a2a2a] tracking-tighter mr-2">──</span> 
               &nbsp;OR&nbsp; 
-              <span className="text-[var(--color-border)] tracking-tighter ml-2">──</span>
+              <span className="text-[#2a2a2a] tracking-tighter ml-2">──</span>
             </div>
 
             <div className="flex-1 flex flex-col">
-              <label className="block text-sm font-mono text-primary mb-2">
+              <label className="block text-sm font-mono text-[#ef4444] mb-2">
                 DESCRIPTION &gt;
               </label>
               <textarea
                 value={jobText}
                 onChange={(e) => setJobText(e.target.value)}
                 placeholder="Paste the full job description here..."
-                className="w-full flex-1 min-h-[180px] bg-[var(--color-background)] border border-[var(--color-border)] rounded-md px-4 py-3 text-sm font-mono outline-none focus:border-primary focus:ring-0 text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)] transition-colors resize-none"
+                className="w-full flex-1 min-h-[180px] bg-[#0a0a0a] border border-[#2a2a2a] rounded-md px-4 py-3 text-sm font-mono outline-none focus:border-[#ef4444] focus:ring-0 text-[#f5f5f5] placeholder:text-[#737373] transition-colors resize-none"
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-primary/10 border border-primary/20 rounded-md text-primary text-sm font-mono flex items-start gap-2">
+              <div className="p-3 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-md text-[#ef4444] text-sm font-mono flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                 <p>{error}</p>
               </div>
             )}
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <span className="text-[10px] bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-muted-foreground)] font-mono rounded-sm px-2 py-1">
+              <span className="text-[10px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono rounded-sm px-2 py-1">
                 ⚡ AI Analysis
               </span>
-              <span className="text-[10px] bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-muted-foreground)] font-mono rounded-sm px-2 py-1">
+              <span className="text-[10px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono rounded-sm px-2 py-1">
                 🏛 Govt Database
               </span>
-              <span className="text-[10px] bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-muted-foreground)] font-mono rounded-sm px-2 py-1">
+              <span className="text-[10px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono rounded-sm px-2 py-1">
                 🔍 WHOIS Check
               </span>
             </div>
@@ -177,7 +174,7 @@ export default function JobAnalyzer() {
             <button
               onClick={handleAnalyze}
               disabled={loading}
-              className={`w-full mt-2 bg-primary hover:bg-red-600 text-white font-bold py-3 px-4 rounded-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-widest font-mono ${hasInput && !loading ? 'shadow-[0_0_15px_rgba(239,68,68,0.4)]' : ''}`}
+              className={`w-full mt-2 bg-[#ef4444] hover:bg-red-600 text-white font-bold py-3 px-4 rounded-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-widest font-mono ${hasInput && !loading ? 'shadow-[0_0_15px_rgba(239,68,68,0.4)]' : ''}`}
               style={{ animation: hasInput && !loading ? 'glowPulse 2s infinite' : 'none' }}
             >
               {loading ? (
@@ -194,94 +191,159 @@ export default function JobAnalyzer() {
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Results Section */}
-      <div className="lg:col-span-7 flex flex-col">
-        {result ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-md p-6 flex-1 flex flex-col"
-          >
-            <div className="flex items-start justify-between mb-8 pb-6 border-b border-[var(--color-border)]">
-              <div>
-                <h2 className="text-xs font-mono font-bold tracking-widest text-[var(--color-muted-foreground)] uppercase mb-3">Case File Result</h2>
-                <div className={`inline-flex items-center px-3 py-1 border-2 ${getVerdictColor(result.verdict)}`}>
-                  <span className="text-2xl font-mono font-black tracking-tighter uppercase">{result.verdict}</span>
-                </div>
-              </div>
-              
-              <div className="text-right">
-                <div className="text-xs font-mono font-bold tracking-widest text-[var(--color-muted-foreground)] uppercase mb-2">Fraud Score</div>
-                <div className="flex items-end justify-end gap-1 font-mono">
-                  <span className={`text-4xl font-black leading-none ${result.fraud_score > 70 ? 'text-primary' : result.fraud_score > 30 ? 'text-[var(--color-warning)]' : 'text-[var(--color-success)]'}`}>
-                    {result.fraud_score}
-                  </span>
-                  <span className="text-[var(--color-muted-foreground)] font-medium mb-1">/100</span>
-                </div>
-              </div>
-            </div>
+  const caseId = `CASE-${Math.floor(1000 + Math.random() * 9000)}-${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`;
+  const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
 
-            <p className="text-sm text-[var(--color-foreground)] font-mono leading-relaxed mb-8">
-              &gt; {result.summary}
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div className="space-y-0 border-t border-l border-r border-[var(--color-border)]">
-                <div className="p-2 border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-                  <h3 className="text-xs font-mono font-bold tracking-widest text-[var(--color-muted-foreground)] uppercase">Security Checks</h3>
-                </div>
-                <CheckRow label="AI Pattern Analysis" passed={result.checks.ai_pattern} />
-                <CheckRow label="Company Verification" passed={result.checks.company_verification} />
-                <CheckRow label="Salary Sanity Check" passed={result.checks.salary_sanity} />
-                <CheckRow label="Domain Age Check" passed={result.checks.domain_age} />
-                <CheckRow label="Address Validation" passed={result.checks.address_validation} />
-              </div>
-
-              <div className="space-y-6">
-                {result.red_flags.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-mono font-bold tracking-widest text-primary uppercase mb-3 flex items-center gap-2">
-                      [!] Red Flags
-                    </h3>
-                    <ul className="space-y-2 font-mono text-sm">
-                      {result.red_flags.map((flag, i) => (
-                        <li key={i} className="text-[var(--color-foreground)] flex items-start gap-2">
-                          <span className="text-primary mt-0.5">-</span> {flag}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {result.green_flags.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-mono font-bold tracking-widest text-[var(--color-success)] uppercase mb-3 flex items-center gap-2">
-                      [+] Green Flags
-                    </h3>
-                    <ul className="space-y-2 font-mono text-sm">
-                      {result.green_flags.map((flag, i) => (
-                        <li key={i} className="text-[var(--color-foreground)] flex items-start gap-2">
-                          <span className="text-[var(--color-success)] mt-0.5">-</span> {flag}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <div className="h-full min-h-[400px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-md flex flex-col items-center justify-center p-8 flex-1">
-            <div className="w-full max-w-[240px] space-y-3 mb-6 opacity-50">
-              <div className="h-3 bg-[#1f1f1f] rounded-sm w-full"></div>
-              <div className="h-3 bg-[#1f1f1f] rounded-sm w-5/6"></div>
-              <div className="h-3 bg-[#1f1f1f] rounded-sm w-4/6"></div>
-              <div className="h-3 bg-[#1f1f1f] rounded-sm w-full"></div>
-            </div>
-            <h3 className="text-sm font-mono font-bold text-primary uppercase tracking-widest">Awaiting Submission</h3>
+  return (
+    <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between mb-8">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-mono font-bold text-white mb-2 tracking-tight">
+            {caseId}
+          </h1>
+          <div className="flex items-center gap-2 text-[#737373] font-mono text-xs mb-3">
+            <Loader2 className="w-3 h-3" />
+            <span>{timestamp}</span>
           </div>
-        )}
+          <p className="text-[#737373] font-mono text-sm">
+            Automated analysis of suspicious job posting activity.
+          </p>
+        </div>
+        
+        <div className="mt-6 md:mt-0 flex items-start gap-8 text-right">
+          <div>
+            <div className="text-[#737373] font-mono text-xs tracking-widest uppercase mb-2">FRAUD SCORE</div>
+            <div className="flex items-baseline justify-end gap-1 font-mono">
+              <span className="text-5xl font-bold text-[#ef4444] leading-none">{result.fraud_score}</span>
+              <span className="text-[#737373] text-lg">/100</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[#737373] font-mono text-xs tracking-widest uppercase mb-2 text-center">VERDICT</div>
+            <div className={`inline-flex items-center justify-center px-4 py-2 border-2 ${getVerdictColor(result.verdict)}`}>
+              <span className="text-lg font-mono font-bold tracking-widest uppercase">{result.verdict}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full h-px bg-[#2a2a2a] mb-8"></div>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: CASE_FILE_DATA */}
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
+          <div className="text-[#737373] font-mono text-sm mb-6">
+            &gt;_ CASE_FILE_DATA
+          </div>
+          
+          <div className="flex-1 flex flex-col">
+            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
+              <div className="flex items-center gap-3 text-[#737373]">
+                <Shield className="w-4 h-4" />
+                <span className="font-mono text-sm">Company Name</span>
+              </div>
+              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.company_name || 'UNKNOWN_ENTITY'}</span>
+            </div>
+            
+            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
+              <div className="flex items-center gap-3 text-[#737373]">
+                <FileText className="w-4 h-4" />
+                <span className="font-mono text-sm">Job Title</span>
+              </div>
+              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.job_title || 'UNSPECIFIED'}</span>
+            </div>
+            
+            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
+              <div className="flex items-center gap-3 text-[#737373]">
+                <AlertTriangle className="w-4 h-4" />
+                <span className="font-mono text-sm">Salary Offered</span>
+              </div>
+              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.salary || 'REQUIRES_MANUAL_REVIEW'}</span>
+            </div>
+            
+            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
+              <div className="flex items-center gap-3 text-[#737373]">
+                <XOctagon className="w-4 h-4" />
+                <span className="font-mono text-sm">Location</span>
+              </div>
+              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.location || 'UNVERIFIED'}</span>
+            </div>
+            
+            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
+              <div className="flex items-center gap-3 text-[#737373]">
+                <CheckCircle2 className="w-4 h-4" />
+                <span className="font-mono text-sm">Contact Email</span>
+              </div>
+              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.contact_email || 'HIDDEN'}</span>
+            </div>
+            
+            <div className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3 text-[#737373]">
+                <LinkIcon className="w-4 h-4" />
+                <span className="font-mono text-sm">Domain</span>
+              </div>
+              <span className="font-mono text-sm text-[#f5f5f5] text-right">{getDomain(jobUrl)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: SECURITY_FLAGS */}
+        <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
+          <div className="text-[#f59e0b] font-mono text-sm mb-6 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            ⚠ SECURITY_FLAGS
+          </div>
+          
+          <div className="flex-1 space-y-6">
+            {result.red_flags.length > 0 ? (
+              <div className="space-y-4">
+                {result.red_flags.map((flag, i) => (
+                  <div key={i} className="flex items-start gap-3 font-mono text-sm">
+                    <span className="text-[#ef4444] mt-0.5">&gt;</span>
+                    <span className="text-[#ef4444] font-bold whitespace-nowrap">[FLAG_{i + 1}]</span>
+                    <span className="text-[#737373] leading-relaxed">{flag}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[#737373] font-mono text-sm italic">No security flags detected.</div>
+            )}
+
+            {result.green_flags.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-[#2a2a2a]">
+                {result.green_flags.map((flag, i) => (
+                  <div key={i} className="flex items-start gap-3 font-mono text-sm">
+                    <span className="text-[#22c55e] mt-0.5">✓</span>
+                    <span className="text-[#22c55e] font-bold whitespace-nowrap">[VERIFIED_{i + 1}]</span>
+                    <span className="text-[#737373] leading-relaxed">{flag}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-[#2a2a2a] flex flex-col gap-3">
+            <button className="w-full bg-[#ef4444] hover:bg-red-600 text-white font-bold py-3 px-4 rounded-sm transition-colors flex items-center justify-center gap-2 uppercase tracking-widest font-mono">
+              <Shield className="w-4 h-4" />
+              SUBMIT FOR REVIEW
+            </button>
+            <button 
+              onClick={() => {
+                setResult(null);
+                setJobText('');
+                setJobUrl('');
+              }}
+              className="w-full bg-[#1a1a1a] hover:bg-[#2a2a2a] text-[#737373] hover:text-[#f5f5f5] font-bold py-3 px-4 rounded-sm transition-colors uppercase tracking-widest font-mono border border-[#2a2a2a]"
+            >
+              CLEAR CASE
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
