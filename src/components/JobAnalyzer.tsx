@@ -345,6 +345,41 @@ export default function JobAnalyzer() {
           </div>
         </div>
       </div>
+
+      {/* Third Row: SYSTEM_CHECKS Pipeline */}
+      <div className="w-full mt-8 bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
+        <div className="text-[#3b82f6] font-mono text-sm mb-6 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
+          &gt;_ EXTERNAL_VERIFICATION_LOG
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {result.checks.map((check, i) => {
+            let statusColor = 'text-[#737373]';
+            let bgBorder = 'bg-[#737373]/5 border-[#2a2a2a]';
+            
+            if (check.status === 'pass') {
+              statusColor = 'text-[#22c55e]';
+              bgBorder = 'bg-[#22c55e]/5 border-[#22c55e]/20';
+            } else if (check.status === 'fail') {
+              statusColor = 'text-[#ef4444]';
+              bgBorder = 'bg-[#ef4444]/5 border-[#ef4444]/20';
+            }
+
+            return (
+              <div key={i} className={`flex flex-col p-4 border rounded-sm ${bgBorder}`}>
+                <div className="flex items-center justify-between mb-3 border-b border-[#2a2a2a] pb-2">
+                  <div className="font-mono font-bold text-[#f5f5f5] text-[11px] uppercase tracking-wider">{check.name}</div>
+                  <div className={`font-mono text-[10px] font-bold tracking-widest uppercase ${statusColor}`}>
+                    [{check.status}]
+                  </div>
+                </div>
+                <div className="font-mono text-xs text-[#737373] leading-relaxed break-words">{check.detail}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

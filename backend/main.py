@@ -44,43 +44,46 @@ class AnalysisResponse(BaseModel):
 async def analyze_job(job: JobInput):
     """
     Analyze a job posting for potential fraud.
-    Uses Groq AI (llama-3.3-70b-versatile) for analysis (Phase 2).
-    Verification checks will be added in Phase 3 & 4.
+    Uses Groq AI (llama-3.3-70b-versatile) for analysis (Phase 2),
+    alongside parallel verification checks (Phase 3 & 4).
     """
+    import asyncio
+    from checks.whois_check import check_domain_age
+    from checks.pincode_check import check_pincode
+    from checks.mca_check import check_mca
+
+    # Phase 2: Run AI Analysis
     ai_result = await analyze_job_posting(job.job_text, job.job_url)
 
-    mock_checks = [
+    # Phase 3 & 4: External Verification Layer
+    # We pass the AI-extracted company name to the MCA checker.
+    extracted_company = ai_result.company_name if ai_result.company_name else "UNKNOWN_ENTITY"
+    
+    # Run the 3 heavy IO-bound checks in parallel to save time
+    domain_task = check_domain_age(job.job_url)
+    pincode_task = check_pincode(job.job_text)
+    mca_task = check_mca(extracted_company)
+    
+    domain_res, pincode_res, mca_res = await asyncio.gather(
+        domain_task, pincode_task, mca_task
+    )
+
+    # Compile the final checklist combining AI and External sensors
+    real_checks = [
         Check(
             name="AI Pattern Analysis",
             status="fail" if ai_result.fraud_score > 50 else "pass",
             detail=ai_result.summary,
         ),
-        Check(
-            name="Company Verification",
-            status="unknown",
-            detail="Verification checks will be implemented in Phase 3.",
-        ),
-        Check(
-            name="Salary Sanity Check",
-            status="unknown",
-            detail="Salary check will be implemented in Phase 3.",
-        ),
-        Check(
-            name="Domain Age Check",
-            status="unknown",
-            detail="Domain age will be implemented in Phase 3.",
-        ),
-        Check(
-            name="Address Validation",
-            status="unknown",
-            detail="Address validation will be implemented in Phase 3.",
-        ),
+        Check(**domain_res),
+        Check(**pincode_res),
+        Check(**mca_res),
     ]
 
     return AnalysisResponse(
         verdict=ai_result.verdict,
         fraud_score=ai_result.fraud_score,
-        checks=mock_checks,
+        checks=real_checks,
         red_flags=ai_result.red_flags,
         green_flags=ai_result.green_flags,
         summary=ai_result.summary,
