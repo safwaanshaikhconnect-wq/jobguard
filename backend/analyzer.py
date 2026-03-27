@@ -10,6 +10,10 @@ class AIAnalysisResult(BaseModel):
     verdict: str
     fraud_score: int
     company_name: str | None = None
+    job_title: str | None = None
+    salary: str | None = None
+    location: str | None = None
+    contact_email: str | None = None
     red_flags: list[str]
     green_flags: list[str]
     summary: str
@@ -23,6 +27,10 @@ async def analyze_job_posting(job_text: str, job_url: str) -> AIAnalysisResult:
             verdict="HIGH RISK",
             fraud_score=87,
             company_name="Mock Company Ltd",
+            job_title="Mock Data Entry Clerk",
+            salary="$4,500/month",
+            location="Remote",
+            contact_email="scammer@gmail.com",
             red_flags=[
                 "Mock AI Flag: Salary is suspiciously high.",
                 "Mock AI Flag: Vague requirements."
@@ -47,6 +55,10 @@ Provide a structured risk assessment in JSON format. Do not include markdown for
   "verdict": "SAFE" | "SUSPICIOUS" | "HIGH RISK",
   "fraud_score": <int between 0 and 100, where 100 is definitely a scam. If extremely safe, use 0-5.>,
   "company_name": "<extracted company name from text/URL, or empty if unknown>",
+  "job_title": "<extracted job title or empty>",
+  "salary": "<extracted salary or empty>",
+  "location": "<extracted location or empty>",
+  "contact_email": "<extracted email or empty>",
   "red_flags": ["flag 1", "flag 2"],
   "green_flags": ["flag 1"],
   "summary": "<2 sentence explanation>"

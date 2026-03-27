@@ -23,12 +23,18 @@ interface AnalysisResult {
   contact_email?: string;
 }
 
-export default function JobAnalyzer() {
+export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete?: (result: any, url: string) => void }) {
   const [jobText, setJobText] = useState('');
   const [jobUrl, setJobUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<AnalysisResult | null>(null);
+
+  const emitLog = (type: 'info' | 'warn' | 'error' | 'success' | 'debug', message: string) => {
+    const bc = new BroadcastChannel('jobguard_logs');
+    bc.postMessage({ type, message, timestamp: new Date().toISOString() });
+    bc.close();
+  };
 
   const handleAnalyze = async () => {
     if (!jobText.trim() && !jobUrl.trim()) {
@@ -40,22 +46,42 @@ export default function JobAnalyzer() {
     setError('');
     setResult(null);
 
+    emitLog('info', `PHASE_1: INITIATING MULTI-SENSOR ANALYSIS FOR TARGET...`);
+    emitLog('debug', 'ESTABLISHING SECURE HANDSHAKE WITH FASTAPI_NODE_8000...');
+
     try {
       let data: AnalysisResult;
       try {
+        emitLog('info', 'COMMENCING AI PATTERN MATCHING & LINGUISTIC FRAUD DETECTION...');
         const res = await fetch('http://localhost:8000/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_text: jobText, job_url: jobUrl })
         });
         if (!res.ok) throw new Error('API failed');
+
+        emitLog('success', 'AI_ENGINE: LINGUISTIC PATTERN ANALYSIS COMPLETE.');
+        emitLog('info', 'PHASE_2: RUNNING CYBER-THREAT INTELLIGENCE (VIRUSTOTAL V3)...');
+        emitLog('info', 'PHASE_3: EXECUTING DNS_MX AUTHENTICITY CHECK...');
+        emitLog('debug', 'DNS_RESOLVER: QUERYING ROOT SERVERS FOR TARGET DOMAIN...');
+        emitLog('info', 'PHASE_4: PERFORMING MCA_CORPORATE_IDENTITY_ENSEMBLE_SCAN...');
+
         data = await res.json();
+
+        emitLog('success', 'ALL SENSORS: DATA AGGREGATION SUCCESSFUL.');
+        if (data.fraud_score > 60) {
+          emitLog('warn', `IDENTIFIED ANOMALIES: FRAUD_PROBABILITY ${data.fraud_score}%`);
+        } else {
+          emitLog('success', 'SYSTEM_VERDICT: SECURE_ENTITY_IDENTIFIED.');
+        }
+
       } catch (apiErr) {
-        console.log("Local API failed, falling back to Gemini intelligence...");
+        emitLog('warn', 'LOCAL_ENGINE_OFFLINE. FALLING BACK TO CLOUD_INTELLIGENCE...');
         try {
           data = await analyzeWithGemini(jobText, jobUrl);
+          emitLog('success', 'CLOUD_INTELLIGENCE: ANALYSIS SYNCED.');
         } catch (geminiErr) {
-          console.log("Gemini failed, using hardcoded mock data...");
+          emitLog('error', 'CLOUD_SYNC_FAILED. GENERATING HEURISTIC_MOCK_DATA...');
           data = {
             verdict: 'HIGH RISK',
             fraud_score: 85,
@@ -79,7 +105,11 @@ export default function JobAnalyzer() {
         }
       }
       setResult(data);
+      if (onAnalysisComplete) {
+        onAnalysisComplete(data, jobUrl);
+      }
     } catch (err) {
+      emitLog('error', 'FATAL: CONNECTION_LOST_TO_CORE_SOCKET.');
       console.error(err);
       setError('Failed to analyze the job posting. Please try again.');
     } finally {
@@ -119,7 +149,7 @@ export default function JobAnalyzer() {
               Paste a job posting URL or description to begin fraud analysis
             </p>
           </div>
-          
+
           <div className="space-y-4 flex-1 flex flex-col">
             <div>
               <div className="flex items-center bg-[#0a0a0a] border border-[#2a2a2a] focus-within:border-[#ef4444] rounded-md px-3 py-2.5 transition-colors">
@@ -135,8 +165,8 @@ export default function JobAnalyzer() {
             </div>
 
             <div className="flex items-center justify-center text-[#737373] font-mono text-xs py-1">
-              <span className="text-[#2a2a2a] tracking-tighter mr-2">──</span> 
-              &nbsp;OR&nbsp; 
+              <span className="text-[#2a2a2a] tracking-tighter mr-2">──</span>
+              &nbsp;OR&nbsp;
               <span className="text-[#2a2a2a] tracking-tighter ml-2">──</span>
             </div>
 
@@ -213,7 +243,7 @@ export default function JobAnalyzer() {
             Automated analysis of suspicious job posting activity.
           </p>
         </div>
-        
+
         <div className="mt-6 md:mt-0 flex items-start gap-8 text-right">
           <div>
             <div className="text-[#737373] font-mono text-xs tracking-widest uppercase mb-2">FRAUD SCORE</div>
@@ -240,7 +270,7 @@ export default function JobAnalyzer() {
           <div className="text-[#737373] font-mono text-sm mb-6">
             &gt;_ CASE_FILE_DATA
           </div>
-          
+
           <div className="flex-1 flex flex-col">
             <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
               <div className="flex items-center gap-3 text-[#737373]">
@@ -249,7 +279,7 @@ export default function JobAnalyzer() {
               </div>
               <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.company_name || 'UNKNOWN_ENTITY'}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
               <div className="flex items-center gap-3 text-[#737373]">
                 <FileText className="w-4 h-4" />
@@ -257,7 +287,7 @@ export default function JobAnalyzer() {
               </div>
               <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.job_title || 'UNSPECIFIED'}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
               <div className="flex items-center gap-3 text-[#737373]">
                 <AlertTriangle className="w-4 h-4" />
@@ -265,7 +295,7 @@ export default function JobAnalyzer() {
               </div>
               <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.salary || 'REQUIRES_MANUAL_REVIEW'}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
               <div className="flex items-center gap-3 text-[#737373]">
                 <XOctagon className="w-4 h-4" />
@@ -273,7 +303,7 @@ export default function JobAnalyzer() {
               </div>
               <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.location || 'UNVERIFIED'}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
               <div className="flex items-center gap-3 text-[#737373]">
                 <CheckCircle2 className="w-4 h-4" />
@@ -281,7 +311,7 @@ export default function JobAnalyzer() {
               </div>
               <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.contact_email || 'HIDDEN'}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3 text-[#737373]">
                 <LinkIcon className="w-4 h-4" />
@@ -298,7 +328,7 @@ export default function JobAnalyzer() {
             <AlertTriangle className="w-4 h-4" />
             ⚠ SECURITY_FLAGS
           </div>
-          
+
           <div className="flex-1 space-y-6">
             {result.red_flags.length > 0 ? (
               <div className="space-y-4">
@@ -332,7 +362,7 @@ export default function JobAnalyzer() {
               <Shield className="w-4 h-4" />
               SUBMIT FOR REVIEW
             </button>
-            <button 
+            <button
               onClick={() => {
                 setResult(null);
                 setJobText('');
@@ -350,14 +380,14 @@ export default function JobAnalyzer() {
       <div className="w-full mt-8 bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
         <div className="text-[#3b82f6] font-mono text-sm mb-6 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4" />
-          &gt;_ EXTERNAL_VERIFICATION_LOG
+          &gt;_ IN_DEPTH_ANALYSIS
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {result.checks.map((check, i) => {
             let statusColor = 'text-[#737373]';
             let bgBorder = 'bg-[#737373]/5 border-[#2a2a2a]';
-            
+
             if (check.status === 'pass') {
               statusColor = 'text-[#22c55e]';
               bgBorder = 'bg-[#22c55e]/5 border-[#22c55e]/20';

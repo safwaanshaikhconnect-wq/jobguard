@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Loader2, ShieldCheck } from 'lucide-react';
-import { chatWithGemini } from '../lib/gemini';
 import { motion, AnimatePresence } from 'motion/react';
-
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: string, text: string}[]>([
@@ -29,8 +27,13 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const reply = await chatWithGemini(messages, userMsg);
-      setMessages(prev => [...prev, { role: 'model', text: reply || 'ERROR: Response generation failed.' }]);
+      const response = await fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, history: messages })
+      });
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'model', text: data.reply || 'ERROR: No response from server.' }]);
     } catch (error) {
       console.error(error);
       setMessages(prev => [...prev, { role: 'model', text: 'ERROR: Connection to analysis server lost.' }]);
@@ -71,7 +74,7 @@ export default function Chatbot() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--color-background)]">
               {messages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-3 text-sm font-mono ${
+                  <div className={`max-w-[85%] p-3 text-sm font-mono whitespace-pre-wrap ${
                     msg.role === 'user' 
                       ? 'bg-[var(--color-surface)] text-[var(--color-foreground)] border border-[var(--color-border)]' 
                       : 'bg-[var(--color-card)] text-[var(--color-foreground)] border border-[var(--color-border)] border-l-2 border-l-primary'
