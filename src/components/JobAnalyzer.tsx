@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Shield, AlertTriangle, XOctagon, CheckCircle2, XCircle, Loader2, Link as LinkIcon, FileText, ChevronRight } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Shield, AlertTriangle, XOctagon, CheckCircle2, XCircle, Loader2, Link as LinkIcon, FileText, ChevronRight, ClipboardCheck, Search } from 'lucide-react';
 import { analyzeWithGemini } from '../lib/gemini';
 import { motion } from 'motion/react';
 
@@ -29,6 +29,12 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  
+  // New States for Verification Request System
+  const [evidenceInputs, setEvidenceInputs] = useState<Record<string, string>>({});
+  const [reloading, setReloading] = useState(false);
+  const [isFinalVerdict, setIsFinalVerdict] = useState(false);
+  const caseIdRef = useRef(`CASE-${Math.floor(1000 + Math.random() * 9000)}-IDENTIFIED`);
 
   const emitLog = (type: 'info' | 'warn' | 'error' | 'success' | 'debug', message: string) => {
     const bc = new BroadcastChannel('jobguard_logs');
@@ -45,64 +51,26 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
     setLoading(true);
     setError('');
     setResult(null);
+    setIsFinalVerdict(false);
+    setEvidenceInputs({});
 
     emitLog('info', `PHASE_1: INITIATING MULTI-SENSOR ANALYSIS FOR TARGET...`);
-    emitLog('debug', 'ESTABLISHING SECURE HANDSHAKE WITH FASTAPI_NODE_8000...');
 
     try {
       let data: AnalysisResult;
       try {
-        emitLog('info', 'COMMENCING AI PATTERN MATCHING & LINGUISTIC FRAUD DETECTION...');
         const res = await fetch('http://localhost:8000/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_text: jobText, job_url: jobUrl })
         });
         if (!res.ok) throw new Error('API failed');
-
-        emitLog('success', 'AI_ENGINE: LINGUISTIC PATTERN ANALYSIS COMPLETE.');
-        emitLog('info', 'PHASE_2: RUNNING CYBER-THREAT INTELLIGENCE (VIRUSTOTAL V3)...');
-        emitLog('info', 'PHASE_3: EXECUTING DNS_MX AUTHENTICITY CHECK...');
-        emitLog('debug', 'DNS_RESOLVER: QUERYING ROOT SERVERS FOR TARGET DOMAIN...');
-        emitLog('info', 'PHASE_4: PERFORMING MCA_CORPORATE_IDENTITY_ENSEMBLE_SCAN...');
-
         data = await res.json();
-
         emitLog('success', 'ALL SENSORS: DATA AGGREGATION SUCCESSFUL.');
-        if (data.fraud_score > 60) {
-          emitLog('warn', `IDENTIFIED ANOMALIES: FRAUD_PROBABILITY ${data.fraud_score}%`);
-        } else {
-          emitLog('success', 'SYSTEM_VERDICT: SECURE_ENTITY_IDENTIFIED.');
-        }
-
       } catch (apiErr) {
         emitLog('warn', 'LOCAL_ENGINE_OFFLINE. FALLING BACK TO CLOUD_INTELLIGENCE...');
-        try {
-          data = await analyzeWithGemini(jobText, jobUrl);
-          emitLog('success', 'CLOUD_INTELLIGENCE: ANALYSIS SYNCED.');
-        } catch (geminiErr) {
-          emitLog('error', 'CLOUD_SYNC_FAILED. GENERATING HEURISTIC_MOCK_DATA...');
-          data = {
-            verdict: 'HIGH RISK',
-            fraud_score: 85,
-            checks: [
-              { name: 'AI Pattern Analysis', status: 'fail', detail: 'Posting uses vague language typical of scam listings.' },
-              { name: 'Company Verification', status: 'fail', detail: 'Company not found in government registries.' },
-              { name: 'Salary Sanity Check', status: 'fail', detail: 'Salary is 3x above market average.' },
-              { name: 'Domain Age Check', status: 'unknown', detail: 'Could not verify domain.' },
-              { name: 'Address Validation', status: 'pass', detail: 'Address maps to a valid commercial location.' },
-            ],
-            red_flags: [
-              "Salary is unusually high for this role",
-              "Generic email address used for contact",
-              "Urgent request for personal information"
-            ],
-            green_flags: [
-              "Company address exists"
-            ],
-            summary: "This job posting exhibits multiple classic signs of a recruitment scam, including unrealistic compensation and unverified contact details. Proceed with extreme caution."
-          };
-        }
+        data = await analyzeWithGemini(jobText, jobUrl);
+        emitLog('success', 'CLOUD_INTELLIGENCE: ANALYSIS SYNCED.');
       }
       setResult(data);
       if (onAnalysisComplete) {
@@ -110,11 +78,92 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
       }
     } catch (err) {
       emitLog('error', 'FATAL: CONNECTION_LOST_TO_CORE_SOCKET.');
-      console.error(err);
       setError('Failed to analyze the job posting. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReanalyze = async () => {
+    const hasAnyInput = Object.values(evidenceInputs).some(val => (val as string).trim().length > 0);
+    if (!hasAnyInput) {
+      emitLog('error', 'INSUFFICIENT_DATA: Provide at least one verification input to proceed');
+      return;
+    }
+
+    setReloading(true);
+    emitLog('info', 'FINAL_VERDICT_PROTOCOL: PROCESSING NEW EVIDENCE...');
+
+    try {
+      const res = await fetch('http://localhost:8000/reanalyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          job_text: jobText, 
+          job_url: jobUrl,
+          evidence: evidenceInputs,
+          company_name: result?.company_name,
+          job_title: result?.job_title,
+          salary: result?.salary,
+          location: result?.location,
+          contact_email: result?.contact_email
+        })
+      });
+      
+      if (!res.ok) throw new Error('Reanalysis failed');
+      const data = await res.json();
+      
+      setResult(data);
+      setIsFinalVerdict(true);
+      emitLog('success', 'INVESTIGATION_CLOSED: FINAL_VERDICT_ESTABLISHED.');
+      
+      // Scroll to top to show final result
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      emitLog('error', 'SYSTEM_FAILURE during evidence reprocessed.');
+    } finally {
+      setReloading(false);
+    }
+  };
+
+  const getRequestedItems = () => {
+    if (!result) return [];
+    const items = [];
+    
+    const mcaFailed = result.checks.some(c => c.name.includes('MCA') && c.status === 'fail');
+    const emailFailed = result.checks.some(c => c.name.includes('Email') && c.status === 'fail');
+    const domainFailed = result.checks.some(c => c.name.includes('Domain') && c.status === 'fail');
+    const aiFailed = result.checks.some(c => (c.name.includes('AI Pattern') || c.name.includes('Ensemble')) && c.status === 'fail');
+    const salaryFailed = result.checks.some(c => c.name.includes('Salary') && c.status === 'fail');
+    
+    if (mcaFailed) {
+      items.push({ id: 'cin', label: 'Company CIN number (Find at mca.gov.in)', placeholder: 'U12345KA2023PTC123456' });
+      items.push({ id: 'linkedin', label: 'Screenshot/Link of company LinkedIn page', placeholder: 'linkedin.com/company/example' });
+    }
+    if (emailFailed) {
+      items.push({ id: 'website', label: 'Official company website URL', placeholder: 'https://corporate-site.com' });
+      items.push({ id: 'email_comm', label: 'Any official email communication received', placeholder: 'Paste email headers or content here' });
+    }
+    if (domainFailed) {
+      items.push({ id: 'cert', label: 'Company registration certificate', placeholder: 'Paste certificate details or description' });
+      items.push({ id: 'offer', label: 'Any official offer letter details', placeholder: 'Document ID or signature details' });
+    }
+    if (salaryFailed) {
+      items.push({ id: 'role_exp', label: 'Industry role and years of experience', placeholder: 'e.g. Senior Backend, 5 years' });
+      items.push({ id: 'location_input', label: 'Specific office location verification', placeholder: 'e.g. Building Name, Sector' });
+    }
+    if (aiFailed) {
+      items.push({ id: 'orig_url', label: 'Full original job posting URL', placeholder: 'Original site link' });
+      items.push({ id: 'recruiter', label: 'Recruiter name and phone number', placeholder: 'Name/Phone from WhatsApp or call' });
+    }
+
+    // Default items if score is suspicious but no specific failures (e.g. salary high)
+    if (items.length === 0) {
+      items.push({ id: 'role_exp', label: 'Industry role and years of experience', placeholder: 'e.g. Senior Backend, 5 years' });
+      items.push({ id: 'location_input', label: 'Job Location Verification', placeholder: 'Specific office floor/building' });
+    }
+
+    return items;
   };
 
   const getVerdictColor = (verdict: string) => {
@@ -126,129 +175,177 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
     }
   };
 
-  const hasInput = jobText.trim() !== '' || jobUrl.trim() !== '';
-
-  const getDomain = (url: string) => {
-    try {
-      return new URL(url).hostname;
-    } catch {
-      return 'N/A';
-    }
-  };
-
   if (!result) {
+    const wordCount = jobText.trim() ? jobText.trim().split(/\s+/).length : 0;
+    const charCount = jobText.length;
+
     return (
       <div className="w-full max-w-3xl mx-auto mt-10">
-        <div className="bg-[#111111] border border-[#2a2a2a] border-l-[3px] border-l-[#ef4444] rounded-md p-6 flex-1 flex flex-col">
-          <div className="mb-6">
-            <div className="text-[10px] font-mono text-[#ef4444] tracking-widest uppercase mb-1">[ INVESTIGATION ]</div>
-            <h2 className="text-2xl font-mono font-bold text-white uppercase tracking-tight mb-1">
-              SUBMIT TARGET
-            </h2>
-            <p className="text-sm text-[#737373]">
-              Paste a job posting URL or description to begin fraud analysis
-            </p>
-          </div>
+        
+        {/* Main Application Header */}
+        <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
+          <h1 className="text-3xl font-bold uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-3" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+            <Shield className="w-8 h-8 text-[#ef4444]" />
+            JOB_GUARD_<span className="text-[#ef4444]">CORE</span>
+          </h1>
+          <p className="text-xs tracking-widest uppercase font-mono" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
+            Automated Employment Fraud Detection Matrix
+          </p>
+        </div>
 
-          <div className="space-y-4 flex-1 flex flex-col">
-            <div>
-              <div className="flex items-center bg-[#0a0a0a] border border-[#2a2a2a] focus-within:border-[#ef4444] rounded-md px-3 py-2.5 transition-colors">
-                <span className="text-[#ef4444] font-mono text-sm mr-2 whitespace-nowrap">URL &gt;</span>
+        {/* Ambient glow behind the glass card */}
+        <div className="relative">
+          <div
+            className="absolute inset-0 -z-10 rounded-[20px]"
+            style={{
+              background: `radial-gradient(ellipse at 70% 40%, rgba(239, 68, 68, 0.15), transparent 70%),
+                           radial-gradient(ellipse at 30% 70%, rgba(200, 40, 40, 0.1), transparent 70%)`,
+              filter: 'blur(40px)',
+              transform: 'scale(1.15)',
+            }}
+          />
+
+          {/* Glass card */}
+          <div
+            className="relative flex-1 flex flex-col p-8"
+            style={{
+              background: 'rgba(10, 10, 10, 0.6)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '16px',
+            }}
+          >
+            <div className="mb-6">
+              <div className="text-[10px] font-mono tracking-widest uppercase mb-1" style={{ color: 'rgba(239, 68, 68, 0.8)' }}>[ INVESTIGATION ]</div>
+              <h2 className="text-2xl font-mono font-bold uppercase tracking-tight mb-1" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>SUBMIT TARGET</h2>
+              <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.35)' }}>Paste a job posting URL or description to begin fraud analysis</p>
+            </div>
+
+            <div className="space-y-4">
+              {/* URL Input — glass-matched */}
+              <div
+                className="flex items-center px-4 py-3 transition-all"
+                style={{
+                  background: 'rgba(5, 5, 5, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '12px',
+                }}
+              >
+                <span className="font-mono text-sm mr-3 whitespace-nowrap" style={{ color: 'rgba(239, 68, 68, 0.7)' }}>URL &gt;</span>
                 <input
                   type="url"
                   value={jobUrl}
                   onChange={(e) => setJobUrl(e.target.value)}
                   placeholder="https://company.com/careers/job-post"
-                  className="w-full bg-transparent text-sm font-mono outline-none focus:ring-0 text-[#f5f5f5] placeholder:text-[#737373]"
+                  className="w-full bg-transparent text-sm font-mono outline-none"
+                  style={{ color: 'rgba(255, 255, 255, 0.85)' }}
                 />
               </div>
-            </div>
 
-            <div className="flex items-center justify-center text-[#737373] font-mono text-xs py-1">
-              <span className="text-[#2a2a2a] tracking-tighter mr-2">──</span>
-              &nbsp;OR&nbsp;
-              <span className="text-[#2a2a2a] tracking-tighter ml-2">──</span>
-            </div>
+              <div className="text-center font-mono text-xs" style={{ color: 'rgba(255, 255, 255, 0.15)' }}>── OR ──</div>
 
-            <div className="flex-1 flex flex-col">
-              <label className="block text-sm font-mono text-[#ef4444] mb-2">
-                DESCRIPTION &gt;
-              </label>
-              <textarea
-                value={jobText}
-                onChange={(e) => setJobText(e.target.value)}
-                placeholder="Paste the full job description here..."
-                className="w-full flex-1 min-h-[180px] bg-[#0a0a0a] border border-[#2a2a2a] rounded-md px-4 py-3 text-sm font-mono outline-none focus:border-[#ef4444] focus:ring-0 text-[#f5f5f5] placeholder:text-[#737373] transition-colors resize-none"
-              />
-            </div>
+              {/* Glassmorphism Textarea */}
+              <div className="relative">
+                <textarea
+                  value={jobText}
+                  onChange={(e) => setJobText(e.target.value)}
+                  placeholder="Start writing something amazing..."
+                  className="w-full resize-none text-sm font-mono outline-none"
+                  style={{
+                    minHeight: '300px',
+                    background: 'rgba(5, 5, 5, 0.5)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '12px',
+                    padding: '16px 20px',
+                    paddingBottom: '48px',
+                    color: 'rgba(255, 255, 255, 0.85)',
+                    scrollbarWidth: 'none',
+                  }}
+                />
 
-            {error && (
-              <div className="p-3 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-md text-[#ef4444] text-sm font-mono flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-                <p>{error}</p>
+                {/* Bottom bar: word/char count + formatting hints */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-5 py-3"
+                  style={{
+                    borderTop: '1px solid rgba(255, 255, 255, 0.04)',
+                    borderRadius: '0 0 12px 12px',
+                    background: 'rgba(5, 5, 5, 0.4)',
+                  }}
+                >
+                  <div className="flex items-center gap-4 font-mono text-[10px]" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>
+                    <span>{wordCount} words</span>
+                    <span>·</span>
+                    <span>{charCount} chars</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {['B', 'I', 'U'].map((hint) => (
+                      <span
+                        key={hint}
+                        className="flex items-center justify-center text-[10px] font-mono px-2.5 py-1 cursor-default select-none"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.04)',
+                          border: '1px solid rgba(255, 255, 255, 0.06)',
+                          borderRadius: '20px',
+                          color: 'rgba(255, 255, 255, 0.2)',
+                          fontWeight: hint === 'B' ? 700 : 400,
+                          fontStyle: hint === 'I' ? 'italic' : 'normal',
+                          textDecoration: hint === 'U' ? 'underline' : 'none',
+                        }}
+                      >
+                        {hint}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            )}
 
-            <div className="flex flex-wrap gap-2 pt-2">
-              <span className="text-[10px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono rounded-sm px-2 py-1">
-                ⚡ AI Analysis
-              </span>
-              <span className="text-[10px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono rounded-sm px-2 py-1">
-                🏛 Govt Database
-              </span>
-              <span className="text-[10px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono rounded-sm px-2 py-1">
-                🔍 WHOIS Check
-              </span>
+              {/* Analyze Button */}
+              <button
+                onClick={handleAnalyze}
+                disabled={loading}
+                className="w-full font-bold py-3.5 font-mono tracking-widest uppercase transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.7), rgba(180, 30, 30, 0.6))',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '12px',
+                  color: 'rgba(255, 255, 255, 0.95)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(200, 40, 40, 0.7))'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.7), rgba(180, 30, 30, 0.6))'; }}
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto"/> : '🔒 RUN ANALYSIS'}
+              </button>
             </div>
-
-            <button
-              onClick={handleAnalyze}
-              disabled={loading}
-              className={`w-full mt-2 bg-[#ef4444] hover:bg-red-600 text-white font-bold py-3 px-4 rounded-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-widest font-mono ${hasInput && !loading ? 'shadow-[0_0_15px_rgba(239,68,68,0.4)]' : ''}`}
-              style={{ animation: hasInput && !loading ? 'glowPulse 2s infinite' : 'none' }}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  ANALYZING...
-                </>
-              ) : (
-                <>
-                  🔒 RUN ANALYSIS
-                </>
-              )}
-            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  const caseId = `CASE-${Math.floor(1000 + Math.random() * 9000)}-${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`;
+  const caseId = isFinalVerdict ? "CASE UPDATED - FINAL VERDICT" : caseIdRef.current;
   const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
 
   return (
-    <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-500">
+    <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-500 pb-20">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between mb-8">
         <div>
-          <h1 className="text-4xl md:text-5xl font-mono font-bold text-white mb-2 tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-mono font-bold text-white mb-2 tracking-tight uppercase">
             {caseId}
           </h1>
           <div className="flex items-center gap-2 text-[#737373] font-mono text-xs mb-3">
             <Loader2 className="w-3 h-3" />
             <span>{timestamp}</span>
+            {isFinalVerdict && <span className="text-[#22c55e] ml-2 font-bold">[ DATA_VERIFIED ]</span>}
           </div>
-          <p className="text-[#737373] font-mono text-sm">
-            Automated analysis of suspicious job posting activity.
-          </p>
         </div>
 
         <div className="mt-6 md:mt-0 flex items-start gap-8 text-right">
           <div>
             <div className="text-[#737373] font-mono text-xs tracking-widest uppercase mb-2">FRAUD SCORE</div>
             <div className="flex items-baseline justify-end gap-1 font-mono">
-              <span className="text-5xl font-bold text-[#ef4444] leading-none">{result.fraud_score}</span>
+              <span className={`text-5xl font-bold leading-none ${result.fraud_score > 60 ? 'text-[#ef4444]' : 'text-[#22c55e]'}`}>{result.fraud_score}</span>
               <span className="text-[#737373] text-lg">/100</span>
             </div>
           </div>
@@ -261,154 +358,132 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
         </div>
       </div>
 
-      <div className="w-full h-px bg-[#2a2a2a] mb-8"></div>
-
-      {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: CASE_FILE_DATA */}
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
-          <div className="text-[#737373] font-mono text-sm mb-6">
-            &gt;_ CASE_FILE_DATA
-          </div>
-
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
-              <div className="flex items-center gap-3 text-[#737373]">
-                <Shield className="w-4 h-4" />
-                <span className="font-mono text-sm">Company Name</span>
+        {/* Left Column: CASE_FILE */}
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6">
+          <div className="text-[#737373] font-mono text-sm mb-6">&gt;_ CASE_FILE_RECORDS</div>
+          <div className="space-y-4">
+            {[
+              { icon: Shield, label: 'Company', val: result.company_name },
+              { icon: FileText, label: 'Role', val: result.job_title },
+              { icon: AlertTriangle, label: 'Pay', val: result.salary },
+              { icon: XOctagon, label: 'Geo', val: result.location },
+              { icon: CheckCircle2, label: 'Mail', val: result.contact_email }
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between py-3 border-b border-[#2a2a2a]/50">
+                <div className="flex items-center gap-2 text-[#737373] font-mono text-xs">
+                  <item.icon className="w-3 h-3" /> {item.label}
+                </div>
+                <span className="font-mono text-xs text-[#f5f5f5] uppercase">{item.val || 'NULL'}</span>
               </div>
-              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.company_name || 'UNKNOWN_ENTITY'}</span>
-            </div>
-
-            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
-              <div className="flex items-center gap-3 text-[#737373]">
-                <FileText className="w-4 h-4" />
-                <span className="font-mono text-sm">Job Title</span>
-              </div>
-              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.job_title || 'UNSPECIFIED'}</span>
-            </div>
-
-            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
-              <div className="flex items-center gap-3 text-[#737373]">
-                <AlertTriangle className="w-4 h-4" />
-                <span className="font-mono text-sm">Salary Offered</span>
-              </div>
-              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.salary || 'REQUIRES_MANUAL_REVIEW'}</span>
-            </div>
-
-            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
-              <div className="flex items-center gap-3 text-[#737373]">
-                <XOctagon className="w-4 h-4" />
-                <span className="font-mono text-sm">Location</span>
-              </div>
-              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.location || 'UNVERIFIED'}</span>
-            </div>
-
-            <div className="flex items-center justify-between py-4 border-b border-[#2a2a2a]">
-              <div className="flex items-center gap-3 text-[#737373]">
-                <CheckCircle2 className="w-4 h-4" />
-                <span className="font-mono text-sm">Contact Email</span>
-              </div>
-              <span className="font-mono text-sm text-[#f5f5f5] text-right">{result.contact_email || 'HIDDEN'}</span>
-            </div>
-
-            <div className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3 text-[#737373]">
-                <LinkIcon className="w-4 h-4" />
-                <span className="font-mono text-sm">Domain</span>
-              </div>
-              <span className="font-mono text-sm text-[#f5f5f5] text-right">{getDomain(jobUrl)}</span>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Right Column: SECURITY_FLAGS */}
-        <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
+        {/* Right Column: FLAGS */}
+        <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-6 overflow-hidden">
           <div className="text-[#f59e0b] font-mono text-sm mb-6 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            ⚠ SECURITY_FLAGS
+            <AlertTriangle className="w-4 h-4" /> ⚠ SECURITY_TIMELINE
           </div>
-
-          <div className="flex-1 space-y-6">
-            {result.red_flags.length > 0 ? (
-              <div className="space-y-4">
-                {result.red_flags.map((flag, i) => (
-                  <div key={i} className="flex items-start gap-3 font-mono text-sm">
-                    <span className="text-[#ef4444] mt-0.5">&gt;</span>
-                    <span className="text-[#ef4444] font-bold whitespace-nowrap">[FLAG_{i + 1}]</span>
-                    <span className="text-[#737373] leading-relaxed">{flag}</span>
-                  </div>
-                ))}
+          <div className="space-y-3">
+            {result.red_flags.map((flag, i) => (
+              <div key={i} className="flex items-start gap-2 bg-[#ef4444]/5 p-2 border border-[#ef4444]/10">
+                <span className="text-[#ef4444] font-mono text-xs font-bold font-mono">[!]</span>
+                <span className="text-[#737373] font-mono text-xs leading-loose">{flag}</span>
               </div>
-            ) : (
-              <div className="text-[#737373] font-mono text-sm italic">No security flags detected.</div>
-            )}
-
-            {result.green_flags.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-[#2a2a2a]">
-                {result.green_flags.map((flag, i) => (
-                  <div key={i} className="flex items-start gap-3 font-mono text-sm">
-                    <span className="text-[#22c55e] mt-0.5">✓</span>
-                    <span className="text-[#22c55e] font-bold whitespace-nowrap">[VERIFIED_{i + 1}]</span>
-                    <span className="text-[#737373] leading-relaxed">{flag}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-[#2a2a2a] flex flex-col gap-3">
-            <button className="w-full bg-[#ef4444] hover:bg-red-600 text-white font-bold py-3 px-4 rounded-sm transition-colors flex items-center justify-center gap-2 uppercase tracking-widest font-mono">
-              <Shield className="w-4 h-4" />
-              SUBMIT FOR REVIEW
-            </button>
-            <button
-              onClick={() => {
-                setResult(null);
-                setJobText('');
-                setJobUrl('');
-              }}
-              className="w-full bg-[#1a1a1a] hover:bg-[#2a2a2a] text-[#737373] hover:text-[#f5f5f5] font-bold py-3 px-4 rounded-sm transition-colors uppercase tracking-widest font-mono border border-[#2a2a2a]"
-            >
-              CLEAR CASE
-            </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Third Row: SYSTEM_CHECKS Pipeline */}
-      <div className="w-full mt-8 bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6 flex flex-col">
+      {/* Pipeline View */}
+      <div className="w-full mt-8 bg-[#1a1a1a] border border-[#2a2a2a] rounded-sm p-6">
         <div className="text-[#3b82f6] font-mono text-sm mb-6 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
-          &gt;_ IN_DEPTH_ANALYSIS
+          <Search className="w-4 h-4" /> &gt;_ SENSOR_PIPELINE_(LIVE)
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {result.checks.map((check, i) => {
-            let statusColor = 'text-[#737373]';
-            let bgBorder = 'bg-[#737373]/5 border-[#2a2a2a]';
-
-            if (check.status === 'pass') {
-              statusColor = 'text-[#22c55e]';
-              bgBorder = 'bg-[#22c55e]/5 border-[#22c55e]/20';
-            } else if (check.status === 'fail') {
-              statusColor = 'text-[#ef4444]';
-              bgBorder = 'bg-[#ef4444]/5 border-[#ef4444]/20';
-            }
-
-            return (
-              <div key={i} className={`flex flex-col p-4 border rounded-sm ${bgBorder}`}>
-                <div className="flex items-center justify-between mb-3 border-b border-[#2a2a2a] pb-2">
-                  <div className="font-mono font-bold text-[#f5f5f5] text-[11px] uppercase tracking-wider">{check.name}</div>
-                  <div className={`font-mono text-[10px] font-bold tracking-widest uppercase ${statusColor}`}>
-                    [{check.status}]
-                  </div>
-                </div>
-                <div className="font-mono text-xs text-[#737373] leading-relaxed break-words">{check.detail}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {result.checks.map((check, i) => (
+            <div key={i} className={`p-4 border border-[#2a2a2a] bg-[#0a0a0a] ${check.status === 'fail' ? 'border-[#ef4444]/20' : ''}`}>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] font-mono text-[#737373] uppercase">{check.name}</span>
+                <span className={`text-[9px] font-mono font-bold uppercase ${check.status === 'pass' ? 'text-[#22c55e]' : check.status === 'fail' ? 'text-[#ef4444]' : 'text-[#737373]'}`}>[{check.status}]</span>
               </div>
-            );
-          })}
+              <p className="text-[11px] font-mono text-[#737373] whitespace-pre-line leading-relaxed">{check.detail}</p>
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* NEW: Verification Request System */}
+      {result.verdict === 'SUSPICIOUS' && !isFinalVerdict && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full mt-8 bg-[#111111] border border-[#f59e0b] border-l-4 rounded-sm p-8 shadow-[0_0_20px_rgba(245,158,11,0.1)]"
+        >
+          <div className="flex items-center gap-3 text-[#f59e0b] font-mono font-bold text-lg mb-4">
+            <ClipboardCheck className="w-6 h-6" />
+            &gt; ADDITIONAL_VERIFICATION_REQUIRED
+          </div>
+          
+          <p className="font-mono text-[#737373] text-sm leading-relaxed mb-8 max-w-3xl">
+            Our sensors have flagged this posting as <span className="text-[#f59e0b]">SUSPICIOUS</span>. 
+            Confidence is insufficient for a final verdict. 
+            Submit additional evidence to complete the investigation.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {getRequestedItems().map((item) => (
+              <div key={item.id} className="space-y-2">
+                <label className="block text-xs font-mono text-[#f59e0b] uppercase tracking-wider">
+                  [ ] {item.label}
+                </label>
+                <input
+                  type="text"
+                  value={evidenceInputs[item.id] || ''}
+                  onChange={(e) => setEvidenceInputs({...evidenceInputs, [item.id]: e.target.value})}
+                  placeholder={item.placeholder}
+                  className="w-full bg-[#0a0a0a] border border-[#2a2a2a] focus:border-[#f59e0b] p-3 text-sm font-mono text-[#f5f5f5] outline-none transition-colors"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex flex-col items-center">
+            <button
+              onClick={handleReanalyze}
+              disabled={reloading}
+              className="px-12 py-4 bg-[#f59e0b] hover:bg-[#d97706] text-[#000] font-bold text-sm font-mono tracking-widest uppercase transition-all disabled:opacity-50"
+            >
+              {reloading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-black" />
+                  REANALYZING_EVIDENCE...
+                </span>
+              ) : (
+                '[ REANALYZE WITH EVIDENCE ]'
+              )}
+            </button>
+            <p className="mt-3 text-[10px] font-mono text-[#737373]">
+              FINAL_VERDICT_MODE: INCONCLUSIVE_STATE_REMOVAL_ENABLED
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Actions */}
+      <div className="mt-10 flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setResult(null);
+            setJobText('');
+            setJobUrl('');
+            setIsFinalVerdict(false);
+          }}
+          className="px-6 py-2 bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] font-mono text-xs uppercase tracking-widest hover:text-white transition-colors"
+        >
+          &lt; NEW_INVESTIGATION
+        </button>
       </div>
     </div>
   );

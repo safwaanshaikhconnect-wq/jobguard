@@ -81,7 +81,9 @@ async def check_url_safety(url: str) -> dict:
 
 if __name__ == "__main__":
     async def run_test():
-        os.environ["VT_API_KEY"] = "f03bbc41aedae8ec33da4a429949a031a3a8ff105c30c6e932e86cc38cc6d5ff"
+        if not os.environ.get("VT_API_KEY"):
+            print("ERROR: Set VT_API_KEY environment variable before running test.")
+            return
         print(await check_url_safety("https://google.com"))
         print(await check_url_safety("http://malicious-scam-site.ru"))
 

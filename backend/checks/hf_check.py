@@ -108,7 +108,9 @@ async def check_job_scam_hf(job_text: str) -> dict:
 
 if __name__ == "__main__":
     async def run_test():
-        os.environ["HF_API_KEY"] = "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"
+        if not os.environ.get("HF_API_KEY"):
+            print("ERROR: Set HF_API_KEY environment variable before running test.")
+            return
         print(await check_job_scam_hf("Looking for data entry clerk, earn 5000 dollars daily..."))
 
     asyncio.run(run_test())

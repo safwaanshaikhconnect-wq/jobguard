@@ -46,101 +46,177 @@ export default function OsintSearch() {
 
   return (
     <div className="h-full flex flex-col font-mono max-w-4xl mx-auto w-full">
-      <div className="mb-10 text-center">
-        <h2 className="text-3xl font-bold uppercase tracking-[0.2em] text-[#f5f5f5] mb-2 flex items-center justify-center gap-3">
-          <Globe className="w-8 h-8 text-[#ef4444]" />
-          OSINT_INTELLIGENCE
-        </h2>
-        <p className="text-[#737373] text-xs tracking-widest uppercase">Global Business Registry & Domain Verification Portal</p>
+      {/* Header with ambient glow */}
+      <div className="relative mb-10">
+        <div
+          className="absolute inset-0 -z-10 rounded-[20px]"
+          style={{
+            background: `radial-gradient(ellipse at 50% 0%, rgba(239, 68, 68, 0.1), transparent 60%)`,
+            filter: 'blur(40px)',
+            transform: 'scale(1.1)',
+          }}
+        />
+        <div className="text-center">
+          <h2 className="text-3xl font-bold uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-3" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+            <Globe className="w-8 h-8 text-[#ef4444]" />
+            OSINT_INTELLIGENCE
+          </h2>
+          <p className="text-xs tracking-widest uppercase" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Global Business Registry & Domain Verification Portal</p>
+        </div>
       </div>
 
+      {/* Search bar — glass */}
       <div className="relative group mb-12">
         <form onSubmit={handleSearch}>
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 text-[#737373] group-focus-within:text-[#ef4444] transition-colors" />
+          <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+            <Search className="w-5 h-5 group-focus-within:text-[#ef4444] transition-colors" style={{ color: 'rgba(255, 255, 255, 0.25)' }} />
           </div>
           <input
             type="text"
-            className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm py-4 pl-12 pr-4 text-[#f5f5f5] focus:outline-none focus:border-[#ef4444] transition-all placeholder:text-[#2a2a2a] text-lg uppercase tracking-widest font-mono shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+            className="w-full py-4 pl-14 pr-40 text-lg uppercase tracking-widest font-mono outline-none transition-all"
+            style={{
+              background: 'rgba(10, 10, 10, 0.6)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '14px',
+              color: 'rgba(255, 255, 255, 0.85)',
+            }}
             placeholder="SEARCH ENTITY (E.G. TATA MOTORS)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            className="absolute right-3 top-3 bg-[#111111] hover:bg-[#1a1a1a] border border-[#2a2a2a] text-[#737373] hover:text-[#f5f5f5] px-4 py-1.5 rounded-sm transition-all flex items-center gap-2"
+            className="absolute right-3 top-3 px-5 py-2 text-xs font-mono uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer"
+            style={{
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.15)',
+              borderRadius: '10px',
+              color: 'rgba(239, 68, 68, 0.7)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; e.currentTarget.style.color = 'rgba(239, 68, 68, 0.9)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; e.currentTarget.style.color = 'rgba(239, 68, 68, 0.7)'; }}
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "EXECUTE_LOOKUP"}
           </button>
         </form>
       </div>
 
+      {/* Error */}
       {error && (
-        <div className="bg-[#ef4444]/10 border border-[#ef4444]/30 p-4 rounded-sm text-[#ef4444] text-sm flex items-center gap-3 mb-6">
+        <div
+          className="p-4 text-sm flex items-center gap-3 mb-6"
+          style={{
+            background: 'rgba(239, 68, 68, 0.06)',
+            border: '1px solid rgba(239, 68, 68, 0.15)',
+            borderRadius: '12px',
+            color: 'rgba(239, 68, 68, 0.8)',
+          }}
+        >
           <ShieldAlert className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
+      {/* Result card — glass */}
       {result && (
-        <div className="bg-[#111111] border border-[#2a2a2a] p-8 rounded-sm animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
-          <div className="flex justify-between items-start mb-8 pb-6 border-b border-[#2a2a2a]">
+        <div
+          className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+          style={{
+            background: 'rgba(10, 10, 10, 0.6)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '16px',
+            padding: '32px',
+          }}
+        >
+          {/* Company header */}
+          <div className="flex justify-between items-start mb-8 pb-6" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <Building2 className="w-6 h-6 text-[#ef4444]" />
-                <h3 className="text-2xl font-bold uppercase tracking-widest text-[#f5f5f5]">{result.name}</h3>
+                <h3 className="text-2xl font-bold uppercase tracking-widest" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{result.name}</h3>
               </div>
-              <p className="text-[#737373] text-sm italic">{result.description}</p>
+              <p className="text-sm italic" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>{result.description}</p>
             </div>
             {result.is_verified ? (
-              <div className="flex items-center gap-2 px-4 py-1.5 bg-[#22c55e]/10 border border-[#22c55e] text-[#22c55e] rounded-full text-[10px] font-bold uppercase tracking-widest">
+              <div
+                className="flex items-center gap-2 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest flex-shrink-0"
+                style={{
+                  background: 'rgba(34, 197, 94, 0.08)',
+                  border: '1px solid rgba(34, 197, 94, 0.25)',
+                  borderRadius: '20px',
+                  color: 'rgba(34, 197, 94, 0.8)',
+                }}
+              >
                 <ShieldCheck className="w-4 h-4" /> VERIFIED_ENTITY
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-1.5 bg-[#f59e0b]/10 border border-[#f59e0b] text-[#f59e0b] rounded-full text-[10px] font-bold uppercase tracking-widest">
+              <div
+                className="flex items-center gap-2 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest flex-shrink-0"
+                style={{
+                  background: 'rgba(245, 158, 11, 0.08)',
+                  border: '1px solid rgba(245, 158, 11, 0.25)',
+                  borderRadius: '20px',
+                  color: 'rgba(245, 158, 11, 0.8)',
+                }}
+              >
                 <ShieldAlert className="w-4 h-4" /> UNVERIFIED_ENTITY
               </div>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm">
-                <Globe className="w-5 h-5 text-[#ef4444]" />
+          {/* Details grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { icon: Globe, label: 'OFFICIAL_DOMAIN', value: result.official_domain },
+              { icon: MapPin, label: 'HQ_LOCATION', value: result.official_hq },
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-start gap-4">
+                <div
+                  className="p-3 flex-shrink-0"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.06)',
+                    border: '1px solid rgba(239, 68, 68, 0.1)',
+                    borderRadius: '10px',
+                  }}
+                >
+                  <item.icon className="w-5 h-5 text-[#ef4444]" />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>{item.label}</label>
+                  <div className="font-mono text-lg" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{item.value}</div>
+                </div>
               </div>
-              <div>
-                <label className="text-[10px] text-[#737373] uppercase tracking-widest font-bold">OFFICIAL_DOMAIN</label>
-                <div className="text-[#f5f5f5] font-mono text-lg">{result.official_domain}</div>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm">
-                <MapPin className="w-5 h-5 text-[#ef4444]" />
-              </div>
-              <div>
-                <label className="text-[10px] text-[#737373] uppercase tracking-widest font-bold">HQ_LOCATION</label>
-                <div className="text-[#f5f5f5] font-mono text-lg">{result.official_hq}</div>
-              </div>
-            </div>
+            ))}
 
             <div className="flex items-start gap-4 col-span-1 md:col-span-2">
-              <div className="p-3 bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm">
+              <div
+                className="p-3 flex-shrink-0"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.06)',
+                  border: '1px solid rgba(239, 68, 68, 0.1)',
+                  borderRadius: '10px',
+                }}
+              >
                 <Mail className="w-5 h-5 text-[#ef4444]" />
               </div>
               <div className="flex-1">
-                <label className="text-[10px] text-[#737373] uppercase tracking-widest font-bold">HR_EMAIL_CONVENTION</label>
-                <div className="text-[#f5f5f5] font-mono text-lg">{result.email_pattern}</div>
-                <p className="text-[#737373] text-[10px] mt-2 italic font-sans tracking-wide">Note: Any job offer from a domain NOT matching '{result.official_domain}' is highly suspect.</p>
+                <label className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>HR_EMAIL_CONVENTION</label>
+                <div className="font-mono text-lg" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{result.email_pattern}</div>
+                <p className="text-[10px] mt-2 italic font-sans tracking-wide" style={{ color: 'rgba(255, 255, 255, 0.2)' }}>Note: Any job offer from a domain NOT matching '{result.official_domain}' is highly suspect.</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* Empty state */}
       {!result && !loading && !error && (
-        <div className="mt-20 flex flex-col items-center justify-center opacity-20 select-none">
+        <div className="mt-20 flex flex-col items-center justify-center select-none" style={{ opacity: 0.06 }}>
           <div className="grid grid-cols-3 gap-8">
             <Building2 className="w-12 h-12" />
             <Globe className="w-12 h-12" />

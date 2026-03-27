@@ -62,7 +62,7 @@ export async function chatWithGemini(history: { role: string, text: string }[], 
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.text }]
   }));
-  
+
   contents.push({
     role: 'user',
     parts: [{ text: message }]

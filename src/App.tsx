@@ -57,27 +57,77 @@ export default function App() {
         return <JobAnalyzer onAnalysisComplete={saveToHistory} />;
       case 'dashboard':
         return (
-          <div className="h-full flex flex-col font-mono">
-            <div className="mb-8 text-center flex flex-col items-center">
-              <h2 className="text-2xl font-bold uppercase tracking-[0.3em] text-[#f5f5f5] mb-2">Threat Intelligence Dashboard</h2>
-              <div className="h-px w-20 bg-[#ef4444] mb-2" />
-              <p className="text-[#737373] text-[10px] uppercase tracking-widest">Real-time log of local investigations and security anomalies.</p>
+          <div className="h-full flex flex-col font-mono max-w-4xl mx-auto w-full">
+            {/* Ambient glow */}
+            <div className="relative">
+              <div
+                className="absolute inset-0 -z-10 rounded-[20px]"
+                style={{
+                  background: `radial-gradient(ellipse at 50% 0%, rgba(239, 68, 68, 0.1), transparent 60%)`,
+                  filter: 'blur(40px)',
+                  transform: 'scale(1.1)',
+                }}
+              />
+
+              {/* Glass header card */}
+              <div
+                className="mb-8 text-center flex flex-col items-center p-8"
+                style={{
+                  background: 'rgba(10, 10, 10, 0.6)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '16px',
+                }}
+              >
+                <h2 className="text-2xl font-bold uppercase tracking-[0.3em] mb-2" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Threat Intelligence Dashboard</h2>
+                <div className="h-px w-20 bg-[#ef4444] mb-2" />
+                <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Real-time log of local investigations and security anomalies.</p>
+                {history.length > 0 && (
+                  <button
+                    onClick={() => { setHistory([]); localStorage.removeItem('jg_history'); }}
+                    className="mt-4 px-5 py-2 text-[10px] font-mono uppercase tracking-widest transition-all cursor-pointer"
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.08)',
+                      border: '1px solid rgba(239, 68, 68, 0.15)',
+                      borderRadius: '20px',
+                      color: 'rgba(239, 68, 68, 0.6)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; e.currentTarget.style.color = 'rgba(239, 68, 68, 0.9)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; e.currentTarget.style.color = 'rgba(239, 68, 68, 0.6)'; }}
+                  >
+                    ⌫ PURGE_RECORDS
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="grid grid-cols-1 gap-4">
+            <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+              <div className="grid grid-cols-1 gap-3">
                 {history.length > 0 ? (
                   history.map((item: any) => (
-                    <div key={item.id} className="bg-[#111111] border border-[#2a2a2a] p-4 flex items-center justify-between hover:border-[#ef4444]/30 transition-all cursor-pointer group relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-[2px] h-full bg-[#ef4444] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div
+                      key={item.id}
+                      className="p-5 flex items-center justify-between cursor-pointer group relative overflow-hidden transition-all duration-300"
+                      style={{
+                        background: 'rgba(10, 10, 10, 0.5)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '12px',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.border = '1px solid rgba(239, 68, 68, 0.15)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.05)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.06)'; e.currentTarget.style.boxShadow = 'none'; }}
+                    >
+                      <div className="absolute top-0 left-0 w-[2px] h-full bg-[#ef4444] opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderRadius: '2px 0 0 2px' }} />
                       <div className="flex items-center gap-6">
-                        <div className="text-[10px] text-[#737373] font-bold tracking-tighter w-20 flex flex-col">
+                        <div className="text-[10px] font-bold tracking-tighter w-20 flex flex-col" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>
                           <span>{new Date(item.timestamp).toLocaleDateString()}</span>
-                          <span className="text-[#2a2a2a]">{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span style={{ color: 'rgba(255, 255, 255, 0.12)' }}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                         <div>
-                          <div className="text-[#f5f5f5] text-sm font-bold uppercase tracking-wide truncate max-w-[200px]">{item.company}</div>
-                          <div className="text-[10px] text-[#737373] mt-0.5 truncate max-w-[250px] italic font-sans">{item.url}</div>
+                          <div className="text-sm font-bold uppercase tracking-wide truncate max-w-[200px]" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{item.company}</div>
+                          <div className="text-[10px] mt-0.5 truncate max-w-[250px] italic font-sans" style={{ color: 'rgba(255, 255, 255, 0.2)' }}>{item.url}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-8">
@@ -88,7 +138,7 @@ export default function App() {
                           }`}>
                             {item.verdict}
                           </div>
-                          <div className="text-[10px] text-[#2a2a2a] mt-1 tracking-[0.2em] font-bold uppercase">Score: {item.score}/100</div>
+                          <div className="text-[10px] mt-1 tracking-[0.2em] font-bold uppercase" style={{ color: 'rgba(255, 255, 255, 0.12)' }}>Score: {item.score}/100</div>
                         </div>
                         <div className="text-[#1a1a1a] group-hover:text-[#ef4444] transition-colors">
                           <Activity className="w-5 h-5 flex-shrink-0" />
@@ -97,7 +147,7 @@ export default function App() {
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-20 opacity-10">
+                  <div className="flex flex-col items-center justify-center py-20" style={{ opacity: 0.08 }}>
                     <Activity className="w-16 h-16 mb-4" />
                     <p className="text-sm uppercase tracking-[0.3em]">NO_DATA_DETECTED</p>
                   </div>

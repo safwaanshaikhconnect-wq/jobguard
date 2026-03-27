@@ -53,7 +53,7 @@ Job Description:
 Provide a structured risk assessment in JSON format. Do not include markdown formatting like ```json or anything else. Just return valid raw JSON matching exactly this schema:
 {{
   "verdict": "SAFE" | "SUSPICIOUS" | "HIGH RISK",
-  "fraud_score": <int between 0 and 100, where 100 is definitely a scam. If extremely safe, use 0-5.>,
+  "fraud_score": <int between 0 and 100>,
   "company_name": "<extracted company name from text/URL, or empty if unknown>",
   "job_title": "<extracted job title or empty>",
   "salary": "<extracted salary or empty>",
@@ -92,3 +92,60 @@ Provide a structured risk assessment in JSON format. Do not include markdown for
             green_flags=[],
             summary="The AI analysis engine encountered an error. Check the server logs."
         )
+
+async def reanalyze_with_evidence(job_text: str, job_url: str, evidence: dict) -> AIAnalysisResult:
+    """Perform a final verdict after additional evidence is provided by the user."""
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    client = AsyncGroq(api_key=api_key)
+    
+    evidence_str = "\n".join([f"- {k}: {v}" for k, v in evidence.items()])
+    
+    prompt = f"""You are the JobGuard Intelligence Core. You have been provided with additional forensic evidence to complete an investigation.
+A previous analysis on the job below was INCONCLUSIVE (SUSPICIOUS). You must now provide a FINAL VERDICT: SAFE or HIGH RISK.
+
+Job URL: {job_url}
+Job Description: {job_text}
+
+--- NEW EVIDENCE SUBMITTED BY USER ---
+{evidence_str}
+
+Evaluate the evidence against the original job posting. Provide a structured final assessment in JSON.
+NO MORE 'SUSPICIOUS' VERDICTS ALLOWED. MUST BE 'SAFE' OR 'HIGH RISK'.
+
+Schema:
+{{
+  "verdict": "SAFE" | "HIGH RISK",
+  "fraud_score": <int between 0 and 100>,
+  "red_flags": ["flag 1", "flag 2"],
+  "green_flags": ["flag 1"],
+  "summary": "<2 sentence explanation of the final verdict including how the evidence impacted it>"
+}}
+"""
+
+    try:
+        response = await client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a senior forensic fraud investigator. Provide a binary final verdict (SAFE/HIGH RISK) based on evidence."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1,
+            max_tokens=1024
+        )
+        
+        content = response.choices[0].message.content
+        content = content.replace("```json", "").replace("```", "").strip()
+        data = json.loads(content)
+        # Re-map fields so they fit the AIAnalysisResult (may need defaults)
+        return AIAnalysisResult(
+            **data,
+            company_name=None,
+            job_title=None,
+            salary=None,
+            location=None,
+            contact_email=None
+        )
+    except Exception as e:
+        print(f"Reanalysis failed: {str(e)}")
+        return await analyze_job_posting(job_text, job_url) # Fallback to standard
