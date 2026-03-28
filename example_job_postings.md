@@ -7,36 +7,25 @@ Use these templates to test the AI Analyzer and the verification checks.
 ## 🛑 Example 1: High Risk (Classic Reshipping / Data Entry Scam)
 *Use this to trigger HIGH RISK verdicts. It features an unrealistic salary, generic email, artificial urgency, and the standard "check cashing" setup.*
 
-```text
-Job Title: Virtual Data Entry Clerk / Remote Admin Assistant
-Company: Global Tech Solutions Inc.
-Location: 100% Remote / Work From Home
-Salary: $4,500 - $6,000 per month
+Company: Global Earn Network India Pvt Ltd
+Role: Data Entry Specialist / WFH Typist
+Location: 100% Work From Home (Anywhere in India)
+Salary: ₹45,000 - ₹65,000 per month
 
-**URGENT HIRE - START IMMEDIATELY! NO EXPERIENCE REQUIRED!**
+URGENT HIRING FOR FRESHERS! NO EXPERIENCE REQUIRED!
 
-We are a rapidly expanding international company looking for highly motivated individuals to join our team as Remote Data Entry Clerks. Due to our massive expansion, we need to fill 50 positions by the end of the week!
+We are hiring 500+ candidates for simple copy-paste and data entry work. You can work from your mobile phone 2-3 hours a day and earn up to ₹2,000 daily! 
 
-**Your duties:**
-- Entering data into our proprietary system
-- Replying to customer emails
-- Basic copy/pasting
+Requirements:
+- Must have a smartphone or laptop
+- Basic English reading skills
+- 12th pass minimum
 
-**Requirements:**
-- Must have a laptop and internet connection
-- Must be over 18 years old
-- No previous experience or degree required! We train you!
+How to apply:
+Do not reply here. Send your Aadhar Card photo and Bank Details directly to our HR on WhatsApp: +91-9876543210 or email us at globalearnhr.2024@gmail.com.
 
-**Compensation & Benefits:**
-- $45/hour starting pay!
-- Set your own hours! Work 10 hours or 40 hours a week!
-- Free Apple MacBook Pro and home office setup provided for all new hires!
+Note: To activate your employee ID and receive your free company laptop, a refundable registration fee of ₹1,499 must be paid via Google Pay after document verification.
 
-To apply and secure your spot, please send your full name, home address, and a picture of your ID/Driver's License to our hiring manager directly at: globaltechcareers2025@gmail.com 
-
-Once we receive your email, we will send you a check to purchase your home office equipment. 
-
-DO NOT APPLY ON THIS PLATFORM. EMAILS ONLY.
 ```
 
 ---
@@ -44,55 +33,48 @@ DO NOT APPLY ON THIS PLATFORM. EMAILS ONLY.
 ## 🟡 Example 2: Suspicious (Vague Startup / Phishing)
 *Use this to trigger SUSPICIOUS verdicts. It lacks a clear salary, has vague requirements, and asks for personal information upfront via a Telegram link, but isn't as blatant as a check-cashing scam.*
 
-```text
-Job Title: Crypto Marketing Specialist
-Company: NextGen Blockchain Labs
-Location: Remote
-Salary: Competitive + Equity
+Company: Alpha Global Services
+Role: Client Success Manager
+Location: Work From Home (Pan India)
+Salary: Best in Industry
 
-NextGen Blockchain is building the future of Web3. We are currently sitting in stealth mode, backed by top-tier VCs, and are looking for a marketing specialist to push our new token launch.
+We are hiring immediate joiners for our BPO center. Minimum 12th pass required. Both freshers and experienced candidates can apply. 
 
-**Responsibilities:**
-- Manage our Discord and Telegram communities
-- Write marketing copy
-- Engage with influencers
+Your job will be to handle incoming queries from international clients and manage day-to-day backend operations on our CRM. 
 
-We don't care about your resume, we only care about your hustle. 
+We offer competitive pay, performance bonuses, and a flexible work environment. This is a massive opportunity for growth in a fast-paced environment.
 
-Before we interview you, you must complete a KYC check. Please message our head of HR on Telegram @NextGenHR_Official with a photo of your passport and your crypto wallet address so we can register you in our payroll smart contract.
+If you are interested, please send your resume to our private inbox to schedule a Zoom interview round.
 
-Only serious applicants.
-```
 
+Industry role and years of experience: Fresher applying for BPO
+Job Location Verification: Interviewer refused to provide an office address, insists on remote-only.
 ---
 
 ## ✅ Example 3: Safe / Legitimate Job
 *Use this to trigger SAFE verdicts. It features realistic requirements, a standard corporate layout, reasonable compensation, and directs to a legitimate career portal.*
 
-```text
-Job Title: Junior Frontend Developer (React/TypeScript)
-Company: DataFlow Analytics
-Location: Hybrid (Austin, TX)
-Salary: $75,000 - $90,000 / year
+Company: Infosys Limited
+Role: Systems Engineer (Trainee)
+Location: Pune, Maharashtra (Hybrid)
+Salary: ₹3.6 LPA - ₹4.5 LPA
 
-DataFlow Analytics is a B2B SaaS company providing data visualization tools for mid-market logistics companies. We are seeking a Junior Frontend Developer to join our core product team.
+Infosys is seeking Systems Engineers to join our enterprise solutions team. As an SE, you will work alongside senior developers to build scalable software solutions for our global Fortune 500 clients.
 
-**What you will do:**
-- Work with React, TypeScript, and Tailwind CSS to build new dashboards
-- Collaborate with the UX/UI team to implement Figma designs
-- Write unit tests using Jest and React Testing Library
-- Participate in daily standups and bi-weekly sprint planning
+Key Responsibilities:
+- Participate in the full software development lifecycle (SDLC)
+- Write clean, maintainable code in Java or Python
+- Assist in unit testing and bug fixing
+- Collaborate with cross-functional teams using Agile methodologies
 
-**Qualifications:**
-- 1-3 years of professional experience with React and modern JavaScript
-- Strong understanding of RESTful APIs and state management
-- Ability to commute to our Austin office 2 days a week
-- B.S. in Computer Science or related field (or equivalent bootcamp/experience)
+Mandatory Qualifications:
+- B.E./B.Tech/M.E./M.Tech graduated in 2023 or 2024
+- Minimum 60% or 6.0 CGPA throughout academics
+- Strong foundation in object-oriented programming and datastructures
+- Excellent communication skills
 
-**Benefits:**
-- Comprehensive Health, Dental, and Vision insurance
-- 401(k) matching up to 4%
-- 20 days PTO
+Our campus is located at Rajiv Gandhi Infotech Park, Hinjawadi, Pune, Maharashtra 411057, India.
 
-To apply, please submit your resume and a link to your GitHub profile through our official careers portal at https://careers.dataflowanalytics.com. Applications sent via direct email will not be reviewed.
-```
+How to Apply:
+Please submit your application exclusively through the Infosys Career portal at https://careers.infosys.com. We do not charge any fees for recruitment. Any communication from email addresses not ending in '@infosys.com' should be considered fraudulent.
+

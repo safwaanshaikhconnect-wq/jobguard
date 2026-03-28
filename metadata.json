@@ -1,5 +1,0 @@
-{
-  "name": "JobGuard",
-  "description": "Fake job detection web app with Gemini intelligence and chatbot.",
-  "requestFramePermissions": []
-}

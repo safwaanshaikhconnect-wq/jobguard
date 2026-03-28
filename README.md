@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# JobGuard Core
 
-# Run and deploy your AI Studio app
+An automated employment fraud detection matrix. JobGuard aggregates 7 specialized network sensors (including ML patterns, DNS MX, and government registries) to perform forensic analysis on job postings and detect scams.
 
-This contains everything you need to run your app locally.
+## Architecture
+- **Frontend**: React 19 + TypeScript + Vite
+- **Backend**: FastAPI + Python 3.12 (AsyncIO)
+- **Primary AI**: Groq Llama 3.3
+- **Network Sensors**: VirusTotal, DNS MX Validation, MCA Registry (simulated), Indian Pincode API
 
-View your app in AI Studio: https://ai.studio/apps/8fbf36d8-e21e-47e4-9290-f38cc44c72d1
+## Setup Instructions
 
-## Run Locally
+### Backend Setup
+1. `cd backend`
+2. `python -m venv venv`
+3. `venv\Scripts\activate` (Windows)
+4. `pip install -r requirements.txt`
+5. Configure `.env` with required API keys (Groq, HuggingFace, VirusTotal).
+6. Run the server: `python -m uvicorn main:app --reload --port 8000`
 
-**Prerequisites:**  Node.js
+### Frontend Setup
+1. Ensure you are in the root directory.
+2. `npm install`
+3. Configure `.env.local` with your Gemini API key.
+4. Run the UI: `npm run dev`
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Navigate to `http://localhost:3000` to access the JobGuard Intelligence Dashboard.
