@@ -76,9 +76,10 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
       if (onAnalysisComplete) {
         onAnalysisComplete(data, jobUrl);
       }
-    } catch (err) {
-      emitLog('error', 'FATAL: CONNECTION_LOST_TO_CORE_SOCKET.');
-      setError('Failed to analyze the job posting. Please try again.');
+    } catch (err: any) {
+      console.error(err);
+      emitLog('error', `FATAL: CONNECTION_LOST_TO_CORE_SOCKET. Error: ${err?.message || err}`);
+      setError(`Failed to analyze: ${err?.message || 'Unknown error'}. Please check your API key.`);
     } finally {
       setLoading(false);
     }

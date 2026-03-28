@@ -17,7 +17,7 @@ If both are empty, provide a generic mock response for a suspicious job.
 `;
 
   const response = await getAI().models.generateContent({
-    model: 'gemini-3.1-flash-lite-preview',
+    model: 'gemini-2.5-flash',
     contents: prompt,
     config: {
       systemInstruction: "You are an expert fraud investigator specializing in employment scams. Analyze the job posting and provide a structured risk assessment.",
@@ -52,8 +52,11 @@ If both are empty, provide a generic mock response for a suspicious job.
     }
   });
 
-  const text = response.text;
+  let text = response.text;
   if (!text) throw new Error("No response from Gemini");
+  // Clean potential markdown blocks
+  text = text.replace(/^```json\n?/g, '').replace(/\n?```$/g, '').trim();
+  
   return JSON.parse(text);
 }
 
@@ -69,7 +72,7 @@ export async function chatWithGemini(history: { role: string, text: string }[], 
   });
 
   const response = await getAI().models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-2.5-flash',
     contents: contents,
     config: {
       systemInstruction: "You are JobGuard Assistant, an expert in detecting employment scams, fake jobs, and recruitment fraud. Help users identify red flags in job postings and guide them on how to stay safe. Keep responses concise and helpful."
