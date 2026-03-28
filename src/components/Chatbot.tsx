@@ -46,7 +46,7 @@ export default function Chatbot() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-primary text-primary-foreground p-4 border border-[var(--color-border)] hover:bg-red-600 transition-colors z-50 flex items-center justify-center"
+        className="fixed bottom-24 md:bottom-6 right-6 bg-primary text-primary-foreground p-4 border border-[var(--color-border)] hover:bg-red-600 transition-colors z-50 flex items-center justify-center rounded-full md:rounded-none shadow-lg md:shadow-none"
         aria-label="Open Chat"
       >
         <MessageSquare size={24} />
@@ -55,11 +55,11 @@ export default function Chatbot() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 right-6 w-80 sm:w-96 bg-[var(--color-card)] border border-[var(--color-border)] flex flex-col overflow-hidden z-50"
-            style={{ height: '500px', maxHeight: 'calc(100vh - 120px)' }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="fixed bottom-24 md:bottom-24 right-4 md:right-6 w-[calc(100vw-2rem)] sm:w-80 md:w-96 bg-[var(--color-card)] border border-[var(--color-border)] flex flex-col overflow-hidden z-50 rounded-lg md:rounded-none shadow-2xl"
+            style={{ height: '500px', maxHeight: 'calc(100vh - 8rem)' }}
           >
             <div className="bg-[var(--color-surface)] p-4 border-b border-[var(--color-border)] flex justify-between items-center">
               <div className="flex items-center gap-3">

@@ -57,23 +57,23 @@ export default function OsintSearch() {
           }}
         />
         <div className="text-center">
-          <h2 className="text-3xl font-bold uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-3" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-            <Globe className="w-8 h-8 text-[#ef4444]" />
+          <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-2 md:gap-3" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+            <Globe className="w-6 h-6 md:w-8 md:h-8 text-[#ef4444]" />
             OSINT_INTELLIGENCE
           </h2>
-          <p className="text-xs tracking-widest uppercase" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Global Business Registry & Domain Verification Portal</p>
+          <p className="text-[10px] md:text-xs tracking-widest uppercase" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Global Business Registry & Domain Verification Portal</p>
         </div>
       </div>
 
       {/* Search bar — glass */}
       <div className="relative group mb-12">
-        <form onSubmit={handleSearch}>
-          <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 group-focus-within:text-[#ef4444] transition-colors" style={{ color: 'rgba(255, 255, 255, 0.25)' }} />
+        <form onSubmit={handleSearch} className="flex flex-col md:block">
+          <div className="absolute inset-y-0 left-4 md:left-5 flex items-center pointer-events-none hidden md:flex">
+            <Search className="w-4 h-4 md:w-5 md:h-5 group-focus-within:text-[#ef4444] transition-colors" style={{ color: 'rgba(255, 255, 255, 0.25)' }} />
           </div>
           <input
             type="text"
-            className="w-full py-4 pl-14 pr-40 text-lg uppercase tracking-widest font-mono outline-none transition-all"
+            className="w-full py-3 md:py-4 px-4 md:pl-14 pr-4 md:pr-40 text-sm md:text-lg uppercase tracking-widest font-mono outline-none transition-all mb-3 md:mb-0"
             style={{
               background: 'rgba(10, 10, 10, 0.6)',
               backdropFilter: 'blur(20px)',
@@ -89,7 +89,7 @@ export default function OsintSearch() {
           <button
             type="submit"
             disabled={loading}
-            className="absolute right-3 top-3 px-5 py-2 text-xs font-mono uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer"
+            className="md:absolute right-3 top-3 w-full md:w-auto px-5 py-3 md:py-2 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
             style={{
               background: 'rgba(239, 68, 68, 0.08)',
               border: '1px solid rgba(239, 68, 68, 0.15)',
@@ -130,17 +130,17 @@ export default function OsintSearch() {
             WebkitBackdropFilter: 'blur(20px)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
-            padding: '32px',
           }}
         >
+          <div className="p-5 md:p-8">
           {/* Company header */}
-          <div className="flex justify-between items-start mb-8 pb-6" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4 md:gap-0 mb-8 pb-6" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Building2 className="w-6 h-6 text-[#ef4444]" />
-                <h3 className="text-2xl font-bold uppercase tracking-widest" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{result.name}</h3>
+              <div className="flex items-center gap-2 md:gap-3 mb-2">
+                <Building2 className="w-5 h-5 md:w-6 md:h-6 text-[#ef4444]" />
+                <h3 className="text-xl md:text-2xl font-bold uppercase tracking-widest" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{result.name}</h3>
               </div>
-              <p className="text-sm italic" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>{result.description}</p>
+              <p className="text-xs md:text-sm italic" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>{result.description}</p>
             </div>
             {result.is_verified ? (
               <div
@@ -187,8 +187,8 @@ export default function OsintSearch() {
                   <item.icon className="w-5 h-5 text-[#ef4444]" />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>{item.label}</label>
-                  <div className="font-mono text-lg" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{item.value}</div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold break-all" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>{item.label}</label>
+                  <div className="font-mono text-sm md:text-lg break-all" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{item.value}</div>
                 </div>
               </div>
             ))}
@@ -204,12 +204,13 @@ export default function OsintSearch() {
               >
                 <Mail className="w-5 h-5 text-[#ef4444]" />
               </div>
-              <div className="flex-1">
-                <label className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>HR_EMAIL_CONVENTION</label>
-                <div className="font-mono text-lg" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{result.email_pattern}</div>
+              <div className="flex-1 min-w-0">
+                <label className="text-[10px] uppercase tracking-widest font-bold break-all" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>HR_EMAIL_CONVENTION</label>
+                <div className="font-mono text-sm md:text-lg break-all" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{result.email_pattern}</div>
                 <p className="text-[10px] mt-2 italic font-sans tracking-wide" style={{ color: 'rgba(255, 255, 255, 0.2)' }}>Note: Any job offer from a domain NOT matching '{result.official_domain}' is highly suspect.</p>
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}

@@ -183,10 +183,10 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
       <div className="w-full max-w-3xl mx-auto mt-10">
         
         {/* Main Application Header */}
-        <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-          <h1 className="text-3xl font-bold uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-3" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
-            <Shield className="w-8 h-8 text-[#ef4444]" />
-            JOB_GUARD_<span className="text-[#ef4444]">CORE</span>
+        <div className="mb-6 md:mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
+          <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-2 md:gap-3 px-2" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+            <Shield className="w-6 h-6 md:w-8 md:h-8 text-[#ef4444] flex-shrink-0" />
+            <span className="truncate">JOB_GUARD_<span className="text-[#ef4444]">CORE</span></span>
           </h1>
           <p className="text-xs tracking-widest uppercase font-mono" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
             Automated Employment Fraud Detection Matrix
@@ -207,7 +207,7 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
 
           {/* Glass card */}
           <div
-            className="relative flex-1 flex flex-col p-8"
+            className="relative flex-1 flex flex-col p-5 md:p-8 w-full max-w-full"
             style={{
               background: 'rgba(10, 10, 10, 0.6)',
               backdropFilter: 'blur(20px)',
@@ -232,13 +232,13 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
                   borderRadius: '12px',
                 }}
               >
-                <span className="font-mono text-sm mr-3 whitespace-nowrap" style={{ color: 'rgba(239, 68, 68, 0.7)' }}>URL &gt;</span>
+                <span className="font-mono text-xs md:text-sm mr-2 md:mr-3 whitespace-nowrap" style={{ color: 'rgba(239, 68, 68, 0.7)' }}>URL &gt;</span>
                 <input
                   type="url"
                   value={jobUrl}
                   onChange={(e) => setJobUrl(e.target.value)}
                   placeholder="https://company.com/careers/job-post"
-                  className="w-full bg-transparent text-sm font-mono outline-none"
+                  className="w-full bg-transparent text-xs md:text-sm font-mono outline-none min-w-0"
                   style={{ color: 'rgba(255, 255, 255, 0.85)' }}
                 />
               </div>
@@ -273,10 +273,10 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
                     background: 'rgba(5, 5, 5, 0.4)',
                   }}
                 >
-                  <div className="flex items-center gap-4 font-mono text-[10px]" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>
+                  <div className="flex items-center gap-2 md:gap-4 font-mono text-[9px] md:text-[10px]" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>
                     <span>{wordCount} words</span>
-                    <span>·</span>
-                    <span>{charCount} chars</span>
+                    <span className="hidden sm:inline">·</span>
+                    <span className="hidden sm:inline">{charCount} chars</span>
                   </div>
                   <div className="flex items-center gap-2">
                     {['B', 'I', 'U'].map((hint) => (
@@ -330,8 +330,8 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
     <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-500 pb-20">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between mb-8">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-mono font-bold text-white mb-2 tracking-tight uppercase">
+        <div className="break-all">
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-mono font-bold text-white mb-2 tracking-tight uppercase">
             {caseId}
           </h1>
           <div className="flex items-center gap-2 text-[#737373] font-mono text-xs mb-3">
@@ -453,7 +453,7 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
             <button
               onClick={handleReanalyze}
               disabled={reloading}
-              className="px-12 py-4 bg-[#f59e0b] hover:bg-[#d97706] text-[#000] font-bold text-sm font-mono tracking-widest uppercase transition-all disabled:opacity-50"
+              className="w-full md:w-auto px-6 md:px-12 py-4 bg-[#f59e0b] hover:bg-[#d97706] text-[#000] font-bold text-xs md:text-sm font-mono tracking-widest uppercase transition-all disabled:opacity-50"
             >
               {reloading ? (
                 <span className="flex items-center gap-2">

@@ -108,7 +108,7 @@ export default function App() {
                   history.map((item: any) => (
                     <div
                       key={item.id}
-                      className="p-5 flex items-center justify-between cursor-pointer group relative overflow-hidden transition-all duration-300"
+                      className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between cursor-pointer group relative overflow-hidden transition-all duration-300"
                       style={{
                         background: 'rgba(10, 10, 10, 0.5)',
                         backdropFilter: 'blur(12px)',
@@ -120,17 +120,17 @@ export default function App() {
                       onMouseLeave={(e) => { e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.06)'; e.currentTarget.style.boxShadow = 'none'; }}
                     >
                       <div className="absolute top-0 left-0 w-[2px] h-full bg-[#ef4444] opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderRadius: '2px 0 0 2px' }} />
-                      <div className="flex items-center gap-6">
-                        <div className="text-[10px] font-bold tracking-tighter w-20 flex flex-col" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>
+                      <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 w-full md:w-auto">
+                        <div className="text-[10px] font-bold tracking-tighter w-auto md:w-20 flex flex-row md:flex-col gap-2 md:gap-0" style={{ color: 'rgba(255, 255, 255, 0.25)' }}>
                           <span>{new Date(item.timestamp).toLocaleDateString()}</span>
                           <span style={{ color: 'rgba(255, 255, 255, 0.12)' }}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
-                        <div>
-                          <div className="text-sm font-bold uppercase tracking-wide truncate max-w-[200px]" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{item.company}</div>
-                          <div className="text-[10px] mt-0.5 truncate max-w-[250px] italic font-sans" style={{ color: 'rgba(255, 255, 255, 0.2)' }}>{item.url}</div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-bold uppercase tracking-wide truncate max-w-full md:max-w-[200px]" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{item.company}</div>
+                          <div className="text-[10px] mt-0.5 truncate max-w-[200px] md:max-w-[250px] italic font-sans" style={{ color: 'rgba(255, 255, 255, 0.2)' }}>{item.url}</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-8">
+                      <div className="flex items-center gap-4 md:gap-8 flex-shrink-0 mt-3 md:mt-0">
                         <div className="text-right">
                           <div className={`text-xs font-bold font-mono tracking-widest uppercase ${
                             item.verdict === 'SAFE' ? 'text-[#22c55e]' : 
@@ -140,7 +140,7 @@ export default function App() {
                           </div>
                           <div className="text-[10px] mt-1 tracking-[0.2em] font-bold uppercase" style={{ color: 'rgba(255, 255, 255, 0.12)' }}>Score: {item.score}/100</div>
                         </div>
-                        <div className="text-[#1a1a1a] group-hover:text-[#ef4444] transition-colors">
+                        <div className="text-[#1a1a1a] group-hover:text-[#ef4444] transition-colors hidden md:block">
                           <Activity className="w-5 h-5 flex-shrink-0" />
                         </div>
                       </div>
@@ -166,34 +166,37 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#0a0a0a] relative z-0 text-[#f5f5f5] font-mono selection:bg-[#ef4444]/30">
-      <aside className="w-16 flex-shrink-0 bg-[#0a0a0a] border-r border-[#2a2a2a] flex flex-col items-center py-6 z-20 shadow-2xl">
-        <div className="mb-10 text-[#ef4444]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#0a0a0a] relative z-0 text-[#f5f5f5] font-mono selection:bg-[#ef4444]/30">
+      <aside className="order-last md:order-first w-full md:w-16 h-16 md:h-auto flex-shrink-0 bg-[#0a0a0a] border-t md:border-t-0 md:border-r border-[#2a2a2a] flex md:flex-col items-center justify-around md:justify-start py-0 md:py-6 z-20 shadow-[-0_0_20px_rgba(0,0,0,0.5)] md:shadow-2xl">
+        <div className="hidden md:flex mb-10 text-[#ef4444]">
           <ShieldAlert className="w-7 h-7 cursor-pointer hover:scale-110 transition-transform" onClick={() => setActiveTab('analyzer')} />
         </div>
-        <nav className="flex flex-col gap-8 flex-1">
-          <button onClick={() => setActiveTab('analyzer')} className={`transition-all duration-300 ${activeTab === 'analyzer' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
-            <FileText className="w-5 h-5" />
+        <nav className="flex md:flex-col gap-4 md:gap-8 w-full md:w-auto flex-1 md:flex-none justify-around md:justify-start items-center">
+          <button onClick={() => setActiveTab('analyzer')} className={`transition-all duration-300 p-2 md:p-0 ${activeTab === 'analyzer' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
+            <FileText className="w-6 h-6 md:w-5 md:h-5" />
           </button>
-          <button onClick={() => setActiveTab('dashboard')} className={`transition-all duration-300 ${activeTab === 'dashboard' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
-            <Activity className="w-5 h-5" />
+          <button onClick={() => setActiveTab('dashboard')} className={`transition-all duration-300 p-2 md:p-0 ${activeTab === 'dashboard' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
+            <Activity className="w-6 h-6 md:w-5 md:h-5" />
           </button>
-          <button onClick={() => setActiveTab('search')} className={`transition-all duration-300 ${activeTab === 'search' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
-            <Search className="w-5 h-5" />
+          <button onClick={() => setActiveTab('search')} className={`transition-all duration-300 p-2 md:p-0 ${activeTab === 'search' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
+            <Search className="w-6 h-6 md:w-5 md:h-5" />
           </button>
-          <button onClick={() => setActiveTab('terminal')} className={`transition-all duration-300 ${activeTab === 'terminal' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
-            <Terminal className="w-5 h-5" />
+          <button onClick={() => setActiveTab('terminal')} className={`transition-all duration-300 p-2 md:p-0 ${activeTab === 'terminal' ? 'text-[#ef4444] scale-110' : 'text-[#2a2a2a] hover:text-[#f5f5f5]'}`}>
+            <Terminal className="w-6 h-6 md:w-5 md:h-5" />
           </button>
         </nav>
-        <div className="mt-auto text-[#2a2a2a]">
+        <div className="hidden md:block mt-auto text-[#2a2a2a]">
           <button className="hover:text-[#f5f5f5] transition-colors"><Lock className="w-5 h-5" /></button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 z-10 overflow-hidden">
-        <header className="h-14 flex items-center justify-between px-6 border-b border-[#1a1a1a] bg-[#0a0a0a]/80 backdrop-blur-md">
-          <div className="font-mono text-[9px] font-bold tracking-[0.5em] uppercase text-[#737373]">
-            JOB_GUARD_SYSTEM <span className="mx-4 text-[#1a1a1a]">||</span> <span className="text-[#f5f5f5] animate-pulse">{activeTab.toUpperCase().replace('_', ' ')}</span>
+      <div className="flex-1 flex flex-col min-w-0 z-10 overflow-hidden h-[calc(100vh-4rem)] md:h-screen">
+        <header className="h-14 flex items-center justify-between px-4 md:px-6 border-b border-[#1a1a1a] bg-[#0a0a0a]/80 backdrop-blur-md flex-shrink-0">
+          <div className="font-mono text-[8px] md:text-[9px] font-bold tracking-[0.3em] md:tracking-[0.5em] uppercase text-[#737373] flex items-center">
+            <span className="hidden sm:inline">JOB_GUARD_SYSTEM </span>
+            <span className="sm:hidden">JG_SYS </span>
+            <span className="mx-2 md:mx-4 text-[#1a1a1a]">||</span> 
+            <span className="text-[#f5f5f5] animate-pulse truncate max-w-[100px] sm:max-w-none">{activeTab.toUpperCase().replace('_', ' ')}</span>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -206,7 +209,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-1 bg-[#050505] p-6 lg:p-12 overflow-y-auto relative z-0 scrollbar-thin scrollbar-thumb-[#1a1a1a]">
+        <main className="flex-1 bg-[#050505] p-4 md:p-6 lg:p-12 overflow-y-auto relative z-0 scrollbar-thin scrollbar-thumb-[#1a1a1a]">
           <BackgroundEffects />
           <div className="h-full animate-in fade-in duration-700">
             {renderContent()}
