@@ -14,7 +14,7 @@ If you haven't already, push your entire project (including the `backend` folder
     - **Root Directory:** `backend` (⚠️ Very important)
     - **Environment:** `Python 3`
     - **Build Command:** `pip install -r requirements.txt`
-    - **Start Command:** `gunicorn -k uvicorn.workers.UvicornWorker main:app`
+    - **Start Command:** `gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT`
     - **Plan:** Free
 
 ### 3. Set Environment Variables

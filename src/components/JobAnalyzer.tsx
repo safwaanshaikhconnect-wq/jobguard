@@ -316,6 +316,16 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(200, 40, 40, 0.7))'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.7), rgba(180, 30, 30, 0.6))'; }}
               >
+                {error && (
+                  <div className="mb-4 p-4 bg-[#ef4444]/15 border border-[#ef4444]/30 rounded-lg text-[#ef4444] text-xs font-mono animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span className="font-bold">SYSTEM_ERROR DETECTED</span>
+                    </div>
+                    {error}
+                  </div>
+                )}
+
                 {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto"/> : '🔒 RUN ANALYSIS'}
               </button>
             </div>
