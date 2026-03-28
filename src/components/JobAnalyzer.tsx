@@ -58,24 +58,17 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
     emitLog('info', `PHASE_1: INITIATING MULTI-SENSOR ANALYSIS FOR TARGET...`);
 
     try {
-      let data: AnalysisResult;
-      try {
-        const res = await fetch(`${API_BASE_URL}/analyze`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ job_text: jobText, job_url: jobUrl })
-        });
-        if (!res.ok) throw new Error('API failed');
-        data = await res.json();
-        emitLog('success', 'ALL SENSORS: DATA AGGREGATION SUCCESSFUL.');
-      } catch (apiErr) {
-        emitLog('warn', 'LOCAL_ENGINE_OFFLINE. FALLING BACK TO CLOUD_INTELLIGENCE...');
-        data = await analyzeWithGemini(jobText, jobUrl);
-        emitLog('success', 'CLOUD_INTELLIGENCE: ANALYSIS SYNCED.');
-      }
-      setResult(data);
-      if (onAnalysisComplete) {
-        onAnalysisComplete(data, jobUrl);
+      const res = await fetch(`${API_BASE_URL}/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_text: jobText, job_url: jobUrl })
+      });
+      if (!res.ok) throw new Error(`Backend Error ${res.status}: Analysis connection established but rejected.`);
+      const fetchedData = await res.json();
+      emitLog('success', 'ALL SENSORS: DATA AGGREGATION SUCCESSFUL.');
+      setResult(fetchedData);
+if (onAnalysisComplete) {
+        onAnalysisComplete(fetchedData, jobUrl);
       }
     } catch (err: any) {
       console.error(err);
