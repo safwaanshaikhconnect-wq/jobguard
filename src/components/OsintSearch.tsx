@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Globe, MapPin, Mail, ShieldCheck, ShieldAlert, Loader2, Building2 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface CorporateIntel {
   name: string;
@@ -25,7 +26,7 @@ export default function OsintSearch() {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:8000/search/intelligence', {
+      const response = await fetch(`${API_BASE_URL}/search/intelligence`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })

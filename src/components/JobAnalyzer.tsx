@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Shield, AlertTriangle, XOctagon, CheckCircle2, XCircle, Loader2, Link as LinkIcon, FileText, ChevronRight, ClipboardCheck, Search } from 'lucide-react';
 import { analyzeWithGemini } from '../lib/gemini';
 import { motion } from 'motion/react';
+import { API_BASE_URL } from '../config';
 
 interface Check {
   name: string;
@@ -59,7 +60,7 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
     try {
       let data: AnalysisResult;
       try {
-        const res = await fetch('http://localhost:8000/analyze', {
+        const res = await fetch(`${API_BASE_URL}/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_text: jobText, job_url: jobUrl })
@@ -96,7 +97,7 @@ export default function JobAnalyzer({ onAnalysisComplete }: { onAnalysisComplete
     emitLog('info', 'FINAL_VERDICT_PROTOCOL: PROCESSING NEW EVIDENCE...');
 
     try {
-      const res = await fetch('http://localhost:8000/reanalyze', {
+      const res = await fetch(`${API_BASE_URL}/reanalyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
