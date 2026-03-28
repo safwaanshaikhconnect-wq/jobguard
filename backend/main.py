@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict
 from analyzer import analyze_job_posting, reanalyze_with_evidence
 import re
+import os
 
 app = FastAPI(
     title="JobGuard API",
@@ -11,9 +12,11 @@ app = FastAPI(
     version="1.0.0",
 )
 
+allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

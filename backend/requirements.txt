@@ -1,8 +1,9 @@
-fastapi==0.115.12
-uvicorn==0.34.2
-pydantic==2.11.3
-python-dotenv==1.1.0
-groq==0.15.0
-httpx==0.27.0
-python-whois==0.9.4
-dnspython==2.6.1
+fastapi>=0.110.0
+uvicorn>=0.30.0
+pydantic>=2.7.0
+python-dotenv
+groq
+httpx
+python-whois
+dnspython
+gunicorn
