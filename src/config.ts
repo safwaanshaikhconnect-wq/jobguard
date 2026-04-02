@@ -5,7 +5,7 @@
  * to your backend endpoint (e.g., https://your-backend.herokuapp.com).
  */
 
-const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// In production (Vercel), default to /api (same domain — no CORS needed).
+// In development, default to localhost:8000 (backend running separately).
+const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000');
 export const API_BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
-
-export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';

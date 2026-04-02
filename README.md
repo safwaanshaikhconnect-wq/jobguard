@@ -21,7 +21,7 @@ An automated employment fraud detection matrix. JobGuard aggregates 7 specialize
 ### Frontend Setup
 1. Ensure you are in the root directory.
 2. `npm install`
-3. Configure `.env.local` with your Gemini API key.
+3. Configure `.env` with your `VITE_API_URL` (backend URL).
 4. Run the UI: `npm run dev`
 
 Navigate to `http://localhost:3000` to access the JobGuard Intelligence Dashboard.

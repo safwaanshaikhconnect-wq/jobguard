@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Shield, AlertTriangle, XOctagon, CheckCircle2, XCircle, Loader2, Link as LinkIcon, FileText, ChevronRight, ClipboardCheck, Search } from 'lucide-react';
-import { analyzeWithGemini } from '../lib/gemini';
 import { motion } from 'motion/react';
 import { API_BASE_URL } from '../config';
 

@@ -1,40 +1,67 @@
-# 🚀 Hosting your JobGuard Backend for Free (Render)
+# 🚀 Deploying JobGuard (Frontend + Backend on Vercel)
 
-To make your Vercel app work, your Python backend needs to be live. **Render** is one of the best free options for FastAPI.
+JobGuard deploys as a single Vercel project — the React frontend and Python backend run on the **same domain**, eliminating CORS issues entirely.
+
+## Architecture
+
+```
+https://jobguard-nu.vercel.app/          → Vite frontend (static)
+https://jobguard-nu.vercel.app/api/*     → Python serverless functions (FastAPI)
+```
+
+## Deployment Steps
 
 ### 1. Push your code to GitHub
-If you haven't already, push your entire project (including the `backend` folder) to a GitHub repository.
+Make sure your repo includes:
+- `api/index.py` — Vercel serverless entry point
+- `requirements.txt` — Root-level Python dependencies
+- `vercel.json` — Route configuration
 
-### 2. Create a "Web Service" on Render
-1.  Go to [Render.com](https://render.com) and sign up with GitHub.
-2.  Click **New +** → **Web Service**.
-3.  Connect your GitHub repository.
-4.  Configure the service:
-    - **Name:** `jobguard-api`
-    - **Root Directory:** `backend` (⚠️ Very important)
-    - **Environment:** `Python 3`
-    - **Build Command:** `pip install -r requirements.txt`
-    - **Start Command:** `gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT`
-    - **Plan:** Free
+### 2. Set Environment Variables on Vercel
+In your **Vercel Dashboard** → **Settings** → **Environment Variables**, add:
 
-### 3. Set Environment Variables
-In the Render dashboard for your new service, go to **Environment** and add:
-- `GROQ_API_KEY`: your-key-here
-- `HF_API_KEY`: your-key-here
-- `VT_API_KEY`: your-key-here
-- `ALLOWED_ORIGINS`: `https://your-vercel-app.vercel.app` (The URL of your frontend site)
+| Variable | Value | Required |
+|----------|-------|----------|
+| `GROQ_API_KEY` | `gsk_your_key_here` | ✅ Yes |
+| `HF_API_KEY` | `hf_your_key_here` | ✅ Yes |
+| `VT_API_KEY` | `your_virustotal_key` | ✅ Yes |
 
-### 4. Update Vercel
-Once Render finishes deploying (it takes 2-3 minutes), copy the "onrender.com" URL they give you.
-1. Go to your **Vercel Dashboard** → **Settings** → **Environment Variables**.
-2. Add/Update **`VITE_API_URL`** with your Render URL (e.g., `https://jobguard-api-xyz.onrender.com`).
-3. **Re-deploy** your Vercel project by clicking "Redeploy" in the CLI or "Deploy" in the dashboard.
+> **Note:** You do NOT need to set `VITE_API_URL`. The frontend auto-detects `/api` in production.
+
+### 3. Redeploy
+After setting env vars, trigger a redeployment from the Vercel dashboard or push a new commit.
+
+### 4. Verify
+Test the backend is working:
+```
+curl https://jobguard-nu.vercel.app/api/health
+```
+Expected response: `{"status": "ok", "service": "jobguard-api"}`
 
 ---
 
-### Why Render?
-- No credit card required.
-- Automatically builds from your `requirements.txt`.
-- FREE tier handles your Python 3 environment perfectly.
+## Local Development
 
-*Note: Free instances "spin down" after 15 minutes of inactivity. The very first request after a break might take 30-40 seconds to start.*
+Run the frontend and backend separately:
+
+```bash
+# Terminal 1: Backend
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+
+# Terminal 2: Frontend
+npm install
+npm run dev
+```
+
+The frontend auto-detects `http://localhost:8000` in dev mode.
+
+---
+
+## ⚠️ Limitations
+
+- **Vercel Hobby plan** has a 10-second timeout for serverless functions. If analysis takes longer (due to slow external APIs), consider upgrading to Pro.
+- **Cold starts**: First request after inactivity may take 2-5 seconds while the Python runtime boots.
