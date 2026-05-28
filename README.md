@@ -1,4 +1,4 @@
-# JobGuard Core
+#  JobGuard Core
 
 An automated employment fraud detection matrix. JobGuard aggregates 7 specialized network sensors (including ML patterns, DNS MX, and government registries) to perform forensic analysis on job postings and detect scams.
 
